@@ -841,7 +841,7 @@ form.addEventListener('submit', async (e)=>{
       checkedIn:false, checkedInAt:null, timestamp: Date.now() };
     list.push(guest);
   }
-  const ok = await saveGuests(list);
+  const ok = await upsertGuest(list);
   submitBtn.disabled = false; submitBtn.textContent = 'Confirmar asistencia';
   if(!ok){ formMsg.textContent='No se pudo guardar tu confirmación. Intenta de nuevo.'; formMsg.className='form-msg error'; return; }
 
