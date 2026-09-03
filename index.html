@@ -803,7 +803,7 @@ function renderCompanions(){
     btn.addEventListener('click', ()=>{
       companionRows.splice(parseInt(btn.dataset.i,10), 1);
       renderCompanions();
-    });
+    }); 
   });
 }
 document.getElementById('add-companion').addEventListener('click', ()=>{
