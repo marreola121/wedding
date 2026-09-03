@@ -6,10 +6,9 @@
 <title>Renata & Mateo — Nuestra Boda</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500&family=Work+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<!-- agrégalo antes de tu <script> principal -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   :root{
     --ivory:#F7F1DF;
@@ -184,22 +183,6 @@
   .tl-body .tl-title{ font-weight:500; color:var(--oliva); margin-bottom:4px; }
   .tl-body .tl-text{ font-size:0.9rem; color:var(--text-dim); line-height:1.5; }
 
-  /* ---- Rompehielos (quiz) ---- */
-  .quiz-card{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:28px 24px; max-width:460px; margin:0 auto; }
-  .quiz-progress{ font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--terracota); margin-bottom:10px; text-align:center; }
-  .quiz-question{ font-family:'Cormorant Garamond', serif; font-style:italic; font-size:1.3rem; text-align:center; margin-bottom:20px; color:var(--oliva); }
-  .quiz-options{ display:flex; flex-direction:column; gap:10px; }
-  .quiz-opt{ padding:13px 16px; border:1px solid var(--line); border-radius:10px; background:var(--ivory); color:var(--text); text-align:left; font-size:0.95rem; }
-  .quiz-opt.correct{ background:rgba(99,116,87,0.18); border-color:var(--salvia); color:var(--oliva); font-weight:500; }
-  .quiz-opt.incorrect{ background:rgba(154,83,61,0.16); border-color:var(--ladrillo); color:var(--ladrillo); }
-  .quiz-opt:disabled{ cursor:default; }
-  .quiz-feedback{ margin-top:14px; font-size:0.85rem; color:var(--text-dim); text-align:center; min-height:18px; }
-  .quiz-next{ display:block; margin:20px auto 0; background:linear-gradient(135deg, var(--terracota), var(--ladrillo)); color:#fff; border:none; border-radius:10px; padding:11px 22px; font-size:0.9rem; font-weight:500; }
-  .quiz-result{ text-align:center; }
-  .quiz-result .score{ font-family:'Cormorant Garamond', serif; font-size:2.6rem; color:var(--terracota); font-style:italic; }
-  .quiz-result .msg{ margin-top:10px; color:var(--text-dim); font-size:0.92rem; }
-  .quiz-restart{ margin-top:18px; background:none; border:none; color:var(--ladrillo); text-decoration:underline; font-size:0.85rem; }
-
   /* ---- Itinerario ---- */
   .stops{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
   .stop-card{
@@ -268,12 +251,19 @@
   .pill.selected-no{ background:var(--choco); border-color:var(--choco); color:var(--ivory); font-weight:500;}
   .companions-wrap{ display:none; }
   .companions-wrap.show{ display:block; }
-  .stepper{ display:flex; align-items:center; gap:14px; }
-  .stepper button{
-    width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--ivory);
-    color:var(--text); font-size:1.1rem; line-height:1;
+  .companion-row{ display:flex; gap:8px; margin-bottom:8px; }
+  .companion-row input{
+    flex:1; background:var(--ivory); border:1px solid var(--line); border-radius:10px;
+    padding:10px 12px; color:var(--text); font-size:0.95rem; font-family:'Work Sans', sans-serif;
   }
-  .stepper span{ font-size:1.2rem; min-width:24px; text-align:center; }
+  .companion-remove{
+    width:38px; flex-shrink:0; background:none; border:1px solid var(--line); border-radius:8px;
+    color:var(--text-dim); font-size:1rem;
+  }
+  .add-companion-btn{
+    background:none; border:1px dashed var(--line); border-radius:10px; padding:10px;
+    width:100%; color:var(--terracota); font-size:0.88rem;
+  }
   .cta{
     width:100%; padding:15px; border:none; border-radius:10px;
     background:linear-gradient(135deg, var(--terracota), var(--ladrillo)); color:#fff;
@@ -302,6 +292,7 @@
   .ticket-bottom{ padding:24px; display:flex; flex-direction:column; align-items:center; gap:14px; }
   #qrcode{ background:#fff; padding:10px; border-radius:8px; border:1px solid var(--line); }
   .ticket-code{ font-size:1rem; letter-spacing:0.12em; color:var(--choco); }
+  .ticket-companions{ font-size:0.8rem; color:var(--text-dim); text-align:center; max-width:280px; }
   .ticket-meta{ font-size:0.82rem; color:var(--text-dim); text-align:center; line-height:1.5; }
   .ticket-note{ font-size:0.78rem; color:var(--text-dim); text-align:center; margin-top:2px; opacity:0.85; }
   .ticket-actions{ text-align:center; margin-top:16px; }
@@ -404,7 +395,6 @@
     <a href="#itinerario">Itinerario</a>
     <a href="#galeria">Galería</a>
     <a href="#regalos">Regalos</a>
-    <a href="#rompehielos">Rompehielos</a>
     <a href="#bingo">Bingo</a>
     <a href="#confirmacion" class="nav-cta">Confirmar asistencia</a>
   </div>
@@ -524,12 +514,16 @@
   </div>
 </section>
 
-<section class="section" id="rompehielos">
+<section class="section" id="bingo">
   <div class="wrap-narrow">
-    <div class="section-eyebrow reveal">Para romper el hielo</div>
-    <h2 class="section-title reveal">¿Qué tanto nos conoces?</h2>
-    <div class="section-sub reveal">Un juego rápido antes de confirmar tu asistencia — edita las preguntas en el array QUIZ del código.</div>
-    <div class="quiz-card reveal" id="quiz-card"></div>
+    <div class="section-eyebrow reveal">Solo el día de la boda</div>
+    <h2 class="section-title reveal">Bingo de la Boda</h2>
+    <div class="section-sub reveal">Marca las casillas conforme vayan pasando durante la fiesta — ¡el primero en completar una línea gana!</div>
+    <div class="bingo-grid reveal" id="bingo-grid"></div>
+    <div class="bingo-win" id="bingo-win">🎉 ¡BINGO! Ve con los novios por tu premio.</div>
+    <div class="bingo-actions reveal">
+      <button type="button" id="bingo-new">Nueva tarjeta</button>
+    </div>
   </div>
 </section>
 
@@ -554,11 +548,8 @@
         </div>
         <div class="field companions-wrap" id="companions-wrap">
           <label>Acompañantes adicionales</label>
-          <div class="stepper">
-            <button type="button" id="comp-minus" aria-label="Restar acompañante">−</button>
-            <span id="comp-count">0</span>
-            <button type="button" id="comp-plus" aria-label="Sumar acompañante">+</button>
-          </div>
+          <div id="companions-list"></div>
+          <button type="button" id="add-companion" class="add-companion-btn">+ Agregar acompañante</button>
         </div>
         <div class="field">
           <label for="f-msg">Mensaje (opcional)</label>
@@ -588,6 +579,7 @@
         <div class="ticket-bottom">
           <div id="qrcode"></div>
           <div class="ticket-code mono" id="ticket-code">EVT-000000</div>
+          <div class="ticket-companions" id="ticket-companions"></div>
           <div class="ticket-meta">
             <span id="ticket-party">1 persona</span> · <span data-cfg="dateLine">—</span><br>
             <span data-cfg="venueName">—</span>
@@ -596,19 +588,6 @@
         </div>
       </div>
       <div class="ticket-actions"><button type="button" id="edit-rsvp">Editar mi respuesta</button></div>
-    </div>
-  </div>
-</section>
-
-<section class="section" id="bingo" style="background:var(--card);">
-  <div class="wrap-narrow">
-    <div class="section-eyebrow reveal">Solo el día de la boda</div>
-    <h2 class="section-title reveal">Bingo de la Boda</h2>
-    <div class="section-sub reveal">Marca las casillas conforme vayan pasando durante la fiesta — ¡el primero en completar una línea gana!</div>
-    <div class="bingo-grid reveal" id="bingo-grid"></div>
-    <div class="bingo-win" id="bingo-win">🎉 ¡BINGO! Ve con los novios por tu premio.</div>
-    <div class="bingo-actions reveal">
-      <button type="button" id="bingo-new">Nueva tarjeta</button>
     </div>
   </div>
 </section>
@@ -689,7 +668,12 @@ const CONFIG = {
   rsvpDeadline: "1 de octubre",
   adminCode: "BODA2026",
   // Fecha y hora exacta de la recepción, formato ISO, para la cuenta regresiva
-  weddingISO: "2026-10-24T16:00:00"
+  weddingISO: "2026-10-24T16:00:00",
+  // ⚠️ PRODUCCIÓN: reemplaza con los datos de TU proyecto de Supabase
+  // (Settings → API en el dashboard de Supabase). La "anon public key"
+  // es segura de exponer aquí siempre que tengas RLS activado en la tabla.
+  supabaseUrl: "https://tjickenjiwdiymxnlkgt.supabase.co",
+  supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqaWNrZW5qaXdkaXlteG5sa2d0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzOTM0ODcsImV4cCI6MjEwMzk2OTQ4N30.2PhRr3YxekXaOFD0i7zNlpwqNFl7cCG5q-yZ-jIT_8M"
 };
 
 document.querySelectorAll('[data-cfg]').forEach(el=>{
@@ -744,45 +728,49 @@ if(!reduceMotion && 'IntersectionObserver' in window){
   document.querySelectorAll('.reveal').forEach(el=>el.classList.add('is-visible'));
 }
 
-
-
-const sb = supabase.createClient(
-  'https://tjickenjiwdiymxnlkgt.supabase.co/rest/v1/',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqaWNrZW5qaXdkaXlteG5sa2d0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzOTM0ODcsImV4cCI6MjEwMzk2OTQ4N30.2PhRr3YxekXaOFD0i7zNlpwqNFl7cCG5q-yZ-jIT_8M'
-);
+/* ============================================================
+   ALMACENAMIENTO — conectado a Supabase (producción).
+   Requiere: 1) haber creado el proyecto y la tabla `rsvps` en
+   Supabase (ver el script SQL que te compartí), y 2) haber
+   puesto tu supabaseUrl / supabaseAnonKey reales en CONFIG.
+   ============================================================ */
+const sb = (CONFIG.supabaseUrl.includes('TU-PROYECTO'))
+  ? null
+  : supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnonKey);
 
 async function loadGuests(){
-  const { data, error } = await sb.from('rsvps').select('*').order('created_at');
-  if(error){ console.error(error); return []; }
-  return data.map(r => ({
-    id:r.id, name:r.name, attending:r.attending, companions:r.companions,
-    message:r.message, code:r.code, checkedIn:r.checked_in,
-    checkedInAt:r.checked_in_at, timestamp:new Date(r.created_at).getTime()
-  }));
+  if(!sb){ console.warn('Supabase no está configurado — revisa supabaseUrl/supabaseAnonKey en CONFIG.'); return []; }
+  try{
+    const { data, error } = await sb.from('rsvps').select('*').order('created_at');
+    if(error) throw error;
+    return data.map(r => ({
+      id: r.id, name: r.name, attending: r.attending,
+      companions: r.companions, companionNames: r.companion_names || [],
+      message: r.message, code: r.code,
+      checkedIn: r.checked_in, checkedInAt: r.checked_in_at,
+      timestamp: new Date(r.created_at).getTime()
+    }));
+  }catch(e){ console.error(e); return []; }
 }
 
-// Ojo: cambia el patrón de "guardar toda la lista" por "guardar solo el invitado que cambió"
+// Guarda o actualiza UN invitado (upsert) — no reescribe la lista completa.
 async function upsertGuest(guest){
-  const { error } = await sb.from('rsvps').upsert({
-    id:guest.id, name:guest.name, attending:guest.attending, companions:guest.companions,
-    message:guest.message, code:guest.code, checked_in:guest.checkedIn, checked_in_at:guest.checkedInAt
-  }, { onConflict:'id' });
-  return !error;
-}
-
-/* ============================================================
-   ALMACENAMIENTO — window.storage (persistente, compartido).
-   Para producción, sustituye loadGuests()/saveGuests() por
-   llamadas a una tabla `rsvps` en Supabase.
-   ============================================================ */
-const STORAGE_KEY = 'guestlist';
-/*async function loadGuests(){
-  try{ const res = await window.storage.get(STORAGE_KEY, true); return res ? JSON.parse(res.value) : []; }
-  catch(e){ return []; }
-}*/
-async function saveGuests(list){
-  try{ const res = await window.storage.set(STORAGE_KEY, JSON.stringify(list), true); return !!res; }
-  catch(e){ return false; }
+  if(!sb){ console.warn('Supabase no está configurado — revisa supabaseUrl/supabaseAnonKey en CONFIG.'); return false; }
+  try{
+    const { error } = await sb.from('rsvps').upsert({
+      id: guest.id,
+      name: guest.name,
+      attending: guest.attending,
+      companions: guest.companions,
+      companion_names: guest.companionNames || [],
+      message: guest.message,
+      code: guest.code,
+      checked_in: guest.checkedIn,
+      checked_in_at: guest.checkedInAt ? new Date(guest.checkedInAt).toISOString() : null
+    }, { onConflict: 'id' });
+    if(error) throw error;
+    return true;
+  }catch(e){ console.error(e); return false; }
 }
 function genCode(){
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -794,11 +782,35 @@ function escapeHtml(s){
 }
 
 /* ================= FORMULARIO RSVP ================= */
-let attending = null, companions = 0;
+let attending = null;
+let companionRows = []; // [{ name: "" }, ...]
 const pillYes = document.getElementById('pill-yes');
 const pillNo = document.getElementById('pill-no');
 const companionsWrap = document.getElementById('companions-wrap');
-const compCount = document.getElementById('comp-count');
+
+function renderCompanions(){
+  const list = document.getElementById('companions-list');
+  list.innerHTML = companionRows.map((c,i) => `
+    <div class="companion-row">
+      <input type="text" placeholder="Nombre del acompañante ${i+1}" value="${escapeHtml(c.name)}" data-i="${i}" class="companion-name-input">
+      <button type="button" class="companion-remove" data-i="${i}" aria-label="Quitar acompañante">×</button>
+    </div>
+  `).join('');
+  list.querySelectorAll('.companion-name-input').forEach(inp=>{
+    inp.addEventListener('input', ()=>{ companionRows[parseInt(inp.dataset.i,10)].name = inp.value; });
+  });
+  list.querySelectorAll('.companion-remove').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      companionRows.splice(parseInt(btn.dataset.i,10), 1);
+      renderCompanions();
+    });
+  });
+}
+document.getElementById('add-companion').addEventListener('click', ()=>{
+  if(companionRows.length >= 10) return;
+  companionRows.push({ name:'' });
+  renderCompanions();
+});
 
 pillYes.addEventListener('click', ()=>{
   attending = true; pillYes.classList.add('selected-yes'); pillNo.classList.remove('selected-no');
@@ -807,12 +819,6 @@ pillYes.addEventListener('click', ()=>{
 pillNo.addEventListener('click', ()=>{
   attending = false; pillNo.classList.add('selected-no'); pillYes.classList.remove('selected-yes');
   companionsWrap.classList.remove('show');
-});
-document.getElementById('comp-minus').addEventListener('click', ()=>{
-  companions = Math.max(0, companions-1); compCount.textContent = companions;
-});
-document.getElementById('comp-plus').addEventListener('click', ()=>{
-  companions = Math.min(15, companions+1); compCount.textContent = companions;
 });
 
 const form = document.getElementById('rsvp-form');
@@ -828,20 +834,26 @@ form.addEventListener('submit', async (e)=>{
   if(attending === null){ formMsg.textContent='Indica si asistirás o no.'; formMsg.className='form-msg error'; return; }
 
   submitBtn.disabled = true; submitBtn.textContent = 'Guardando…';
+  const cleanCompanionNames = companionRows.map(c => c.name.trim()).filter(n => n.length > 0);
+
   const list = await loadGuests();
   const key = name.toLowerCase();
   let guest = list.find(g => g.name.toLowerCase() === key);
   if(guest){
-    guest.attending = attending; guest.companions = attending ? companions : 0;
-    guest.message = message; guest.updatedAt = Date.now();
+    guest.attending = attending;
+    guest.companionNames = attending ? cleanCompanionNames : [];
+    guest.companions = guest.companionNames.length;
+    guest.message = message;
     if(!guest.code) guest.code = genCode();
   }else{
     guest = { id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-      name, attending, companions: attending ? companions : 0, message, code: genCode(),
+      name, attending,
+      companionNames: attending ? cleanCompanionNames : [],
+      companions: attending ? cleanCompanionNames.length : 0,
+      message, code: genCode(),
       checkedIn:false, checkedInAt:null, timestamp: Date.now() };
-    list.push(guest);
   }
-  const ok = await upsertGuest(list);
+  const ok = await upsertGuest(guest);
   submitBtn.disabled = false; submitBtn.textContent = 'Confirmar asistencia';
   if(!ok){ formMsg.textContent='No se pudo guardar tu confirmación. Intenta de nuevo.'; formMsg.className='form-msg error'; return; }
 
@@ -867,6 +879,10 @@ function showTicket(guest){
   document.getElementById('ticket-code').textContent = guest.code;
   const total = 1 + (guest.companions || 0);
   document.getElementById('ticket-party').textContent = total + (total===1 ? ' persona' : ' personas');
+  const compNames = guest.companionNames || [];
+  document.getElementById('ticket-companions').textContent = compNames.length
+    ? 'Acompañan: ' + compNames.join(', ')
+    : '';
   const qrEl = document.getElementById('qrcode');
   qrEl.innerHTML = '';
   if(window.QRCode){
@@ -986,7 +1002,7 @@ async function renderDashboard(){
   const tbody = document.getElementById('guest-table-body');
   tbody.innerHTML = sorted.map(g => `
     <tr>
-      <td>${escapeHtml(g.name)}</td>
+      <td>${escapeHtml(g.name)}${(g.companionNames && g.companionNames.length) ? '<br><small style="color:var(--admin-text-dim);">+ ' + escapeHtml(g.companionNames.join(', ')) + '</small>' : ''}</td>
       <td>${g.attending ? '<span class="tag yes">Sí</span>' : '<span class="tag no">No</span>'}</td>
       <td>${g.attending ? (1 + (g.companions||0)) : '—'}</td>
       <td>${g.attending ? (g.checkedIn ? '<span class="tag in">Ingresó</span>' : '—') : '—'}</td>
@@ -1036,84 +1052,15 @@ async function checkInGuest(id){
     resultEl.textContent = escapeHtml(guest.name) + ' ya había ingresado a las ' + time + '.'; return;
   }
   guest.checkedIn = true; guest.checkedInAt = Date.now();
-  await upsertGuest(list);
+  await upsertGuest(guest);
   const total = 1 + (guest.companions||0);
+  const withNames = (guest.companionNames && guest.companionNames.length)
+    ? ' (' + guest.companionNames.join(', ') + ')' : '';
   resultEl.className = 'checkin-result show ok';
-  resultEl.textContent = '✔ Bienvenido, ' + guest.name + ' — grupo de ' + total + (total===1?' persona':' personas') + '.';
+  resultEl.textContent = '✔ Bienvenido, ' + guest.name + ' — grupo de ' + total + (total===1?' persona':' personas') + withNames + '.';
   document.getElementById('checkin-input').value = '';
   renderDashboard();
 }
-
-/* ============================================================
-   ROMPEHIELOS — mini quiz sobre la pareja
-   Edita las preguntas, opciones y la opción correcta (índice
-   base 0) aquí. "note" es el dato curioso que se muestra
-   después de responder.
-   ============================================================ */
-const QUIZ = [
-  { q: "¿En qué ciudad se conocieron?", options: ["Querétaro","Ciudad de México","Guadalajara"], correct: 0, note: "Fue en una cafetería del centro." },
-  { q: "¿Cuál es su película favorita como pareja?", options: ["La La Land","Coco","El Diario de una Pasión"], correct: 0, note: "La ven cada aniversario." },
-  { q: "¿Cuántos años llevan juntos?", options: ["3 años","5 años","7 años"], correct: 1, note: "¡El tiempo vuela!" },
-  { q: "¿Quién propuso matrimonio?", options: ["Mateo","Renata","Fue una decisión mutua"], correct: 0, note: "Fue una sorpresa total." }
-];
-let quizIndex = 0, quizScore = 0;
-
-function renderQuiz(){
-  const card = document.getElementById('quiz-card');
-  if(!card) return;
-
-  if(quizIndex >= QUIZ.length){
-    let msg;
-    if(quizScore === QUIZ.length) msg = "¡Wow, nos conoces perfecto! 💛";
-    else if(quizScore >= Math.ceil(QUIZ.length/2)) msg = "¡Nada mal! Ya casi eres de la familia.";
-    else msg = "Bueno, ¡para eso está la boda, para conocernos mejor!";
-    card.innerHTML =
-      '<div class="quiz-result">' +
-        '<div class="score">' + quizScore + ' / ' + QUIZ.length + '</div>' +
-        '<div class="msg">' + msg + '</div>' +
-        '<button type="button" class="quiz-restart" id="quiz-restart">Intentar de nuevo</button>' +
-      '</div>';
-    document.getElementById('quiz-restart').addEventListener('click', ()=>{
-      quizIndex = 0; quizScore = 0; renderQuiz();
-    });
-    return;
-  }
-
-  const item = QUIZ[quizIndex];
-  card.innerHTML =
-    '<div class="quiz-progress">Pregunta ' + (quizIndex+1) + ' de ' + QUIZ.length + '</div>' +
-    '<div class="quiz-question">' + item.q + '</div>' +
-    '<div class="quiz-options" id="quiz-options">' +
-      item.options.map((opt,i)=> '<button type="button" class="quiz-opt" data-i="' + i + '">' + opt + '</button>').join('') +
-    '</div>' +
-    '<div class="quiz-feedback" id="quiz-feedback"></div>';
-
-  card.querySelectorAll('.quiz-opt').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const chosen = parseInt(btn.dataset.i, 10);
-      const allOpts = card.querySelectorAll('.quiz-opt');
-      allOpts.forEach(b => b.disabled = true);
-
-      if(chosen === item.correct){
-        btn.classList.add('correct');
-        quizScore++;
-        document.getElementById('quiz-feedback').textContent = '¡Correcto! ' + item.note;
-      }else{
-        btn.classList.add('incorrect');
-        allOpts[item.correct].classList.add('correct');
-        document.getElementById('quiz-feedback').textContent = item.note;
-      }
-
-      const next = document.createElement('button');
-      next.type = 'button';
-      next.className = 'quiz-next';
-      next.textContent = (quizIndex === QUIZ.length - 1) ? 'Ver resultado' : 'Siguiente pregunta';
-      next.addEventListener('click', ()=>{ quizIndex++; renderQuiz(); });
-      card.appendChild(next);
-    });
-  });
-}
-renderQuiz();
 
 /* ============================================================
    BINGO DE LA BODA — juego para el día del evento.
