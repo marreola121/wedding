@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Renata & Mateo — Nuestra Boda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500&family=Work+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- agrégalo antes de tu <script> principal -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+<style>
+  :root{
+    --ivory:#F7F1DF;
+    --card:#FFFEFA;
+    --terracota:#D9783F;
+    --cobre:#B75D4F;
+    --ladrillo:#9A533D;
+    --caramelo:#996037;
+    --salvia:#637457;
+    --oliva:#3F503D;
+    --choco:#4A3830;
+    --text:#4A3830;
+    --text-dim:#8B7863;
+    --line: rgba(154,83,61,0.22);
+    --radius:18px;
+
+    --admin-bg:#2E3A2C;
+    --admin-panel:#3A4736;
+    --admin-line: rgba(217,120,63,0.28);
+    --admin-text:#F3EFE2;
+    --admin-text-dim:#B9C2AE;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--ivory);
+    color:var(--text);
+    font-family:'Work Sans', sans-serif;
+    font-weight:300;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.display{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:600;
+    letter-spacing:0.01em;
+    margin:0;
+    color:var(--oliva);
+  }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+  a{color:var(--ladrillo); text-decoration:none;}
+  button{font-family:inherit;cursor:pointer;}
+  :focus-visible{outline:2px solid var(--terracota); outline-offset:3px;}
+  img{max-width:100%; display:block;}
+  section{ scroll-margin-top:74px; }
+
+  .wrap{ max-width:1080px; margin:0 auto; padding:0 24px; }
+  .wrap-narrow{ max-width:680px; margin:0 auto; padding:0 24px; }
+
+  /* ================= NAV ================= */
+  .navbar{
+    position:fixed; top:0; left:0; right:0; z-index:60;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 28px;
+    transition:background .3s ease, box-shadow .3s ease, padding .3s ease;
+  }
+  .navbar.on-hero{ background:transparent; }
+  .navbar.scrolled{
+    background:rgba(247,241,223,0.94);
+    backdrop-filter:blur(6px);
+    box-shadow:0 2px 20px rgba(74,56,48,0.08);
+    padding:12px 28px;
+  }
+  .nav-logo{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:1.3rem;
+    font-weight:600;
+  }
+  .navbar.on-hero .nav-logo{ color:#fff; }
+  .navbar.scrolled .nav-logo{ color:var(--oliva); }
+
+  .nav-links{ display:flex; align-items:center; gap:30px; }
+  .nav-links a{
+    font-size:0.85rem; letter-spacing:0.04em;
+  }
+  .navbar.on-hero .nav-links a{ color:rgba(255,255,255,0.92); }
+  .navbar.scrolled .nav-links a{ color:var(--text); }
+  .nav-cta{
+    border:1px solid currentColor; border-radius:8px;
+    padding:9px 16px; font-size:0.8rem; letter-spacing:0.03em;
+  }
+  .navbar.on-hero .nav-cta{ color:#fff; }
+  .navbar.scrolled .nav-cta{ color:var(--terracota); border-color:var(--terracota); }
+
+  .nav-burger{
+    display:none; background:none; border:none; font-size:1.5rem; line-height:1;
+  }
+  .navbar.on-hero .nav-burger{ color:#fff; }
+  .navbar.scrolled .nav-burger{ color:var(--oliva); }
+
+  @media (max-width:760px){
+    .nav-links{
+      display:none; position:absolute; top:100%; left:0; right:0;
+      background:var(--card); flex-direction:column; align-items:flex-start;
+      padding:18px 28px 24px; gap:16px; box-shadow:0 12px 24px rgba(74,56,48,0.12);
+    }
+    .nav-links.open{ display:flex; }
+    .navbar.on-hero .nav-links a, .navbar.scrolled .nav-links a{ color:var(--text); }
+    .nav-cta{ border-color:var(--terracota); color:var(--terracota) !important; }
+    .nav-burger{ display:block; }
+  }
+
+  /* ================= HERO ================= */
+  .hero{
+    position:relative; min-height:100vh;
+    display:flex; align-items:flex-end; justify-content:center;
+    padding-bottom:90px;
+  }
+  .hero-photo{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(to top, rgba(35,26,20,0.75), rgba(35,26,20,0.15) 55%, rgba(35,26,20,0.35)),
+      repeating-linear-gradient(135deg, #7C6A54 0 2px, #8B7863 2px 4px),
+      linear-gradient(135deg, var(--oliva), var(--ladrillo) 55%, var(--caramelo));
+    display:flex; align-items:center; justify-content:center;
+  }
+  .hero-photo .ph-label{
+    color:rgba(255,255,255,0.55); font-size:0.8rem; letter-spacing:0.08em;
+    border:1px dashed rgba(255,255,255,0.4); padding:10px 16px; border-radius:8px;
+  }
+  .hero-content{ position:relative; z-index:2; text-align:center; color:#fff; padding:0 20px; }
+  .hero-content .eyebrow{
+    font-size:11px; letter-spacing:0.3em; text-transform:uppercase; opacity:0.85; margin-bottom:16px;
+  }
+  .hero-content h1{
+    color:#fff; font-size:clamp(2.6rem, 8vw, 4.6rem); font-style:italic; line-height:1.05;
+  }
+  .hero-content .when{ margin-top:14px; font-size:1.05rem; opacity:0.92; }
+  .hero-content .cta-outline{
+    display:inline-block; margin-top:30px; border:1px solid rgba(255,255,255,0.75);
+    color:#fff; padding:13px 26px; border-radius:8px; font-size:0.85rem; letter-spacing:0.04em;
+  }
+
+  /* ================= COUNTDOWN ================= */
+  .countdown{ padding:56px 0; text-align:center; }
+  .cd-row{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-top:20px; }
+  .cd-box{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:18px 20px; min-width:80px;
+  }
+  .cd-box .n{ font-family:'Cormorant Garamond', serif; font-size:2.2rem; font-weight:600; color:var(--terracota); }
+  .cd-box .l{ font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-dim); margin-top:4px; }
+
+  .divider{ width:56px; height:1px; background:var(--line); margin:20px auto; position:relative; }
+  .divider::after{
+    content:"❦"; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    background:var(--ivory); color:var(--terracota); font-size:13px; padding:0 10px;
+  }
+
+  /* ================= GENERIC SECTION ================= */
+  .section{ padding:70px 0; }
+  .section-eyebrow{
+    text-align:center; font-size:11px; letter-spacing:0.24em; text-transform:uppercase;
+    color:var(--terracota); font-weight:500; margin-bottom:10px;
+  }
+  .section-title{ text-align:center; font-size:2.1rem; font-style:italic; margin-bottom:14px; }
+  .section-sub{ text-align:center; color:var(--text-dim); font-size:0.95rem; max-width:480px; margin:0 auto 40px; }
+
+  .reveal{ opacity:0; transform:translateY(18px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.is-visible{ opacity:1; transform:translateY(0); }
+
+  /* ---- Historia (timeline) ---- */
+  .timeline{ display:flex; flex-direction:column; gap:26px; max-width:520px; margin:0 auto; }
+  .tl-item{ display:flex; gap:18px; align-items:flex-start; }
+  .tl-dot{
+    width:34px; height:34px; border-radius:50%; background:var(--card); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    font-family:'Cormorant Garamond',serif; color:var(--terracota); font-weight:600;
+  }
+  .tl-body .tl-title{ font-weight:500; color:var(--oliva); margin-bottom:4px; }
+  .tl-body .tl-text{ font-size:0.9rem; color:var(--text-dim); line-height:1.5; }
+
+  /* ---- Rompehielos (quiz) ---- */
+  .quiz-card{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:28px 24px; max-width:460px; margin:0 auto; }
+  .quiz-progress{ font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--terracota); margin-bottom:10px; text-align:center; }
+  .quiz-question{ font-family:'Cormorant Garamond', serif; font-style:italic; font-size:1.3rem; text-align:center; margin-bottom:20px; color:var(--oliva); }
+  .quiz-options{ display:flex; flex-direction:column; gap:10px; }
+  .quiz-opt{ padding:13px 16px; border:1px solid var(--line); border-radius:10px; background:var(--ivory); color:var(--text); text-align:left; font-size:0.95rem; }
+  .quiz-opt.correct{ background:rgba(99,116,87,0.18); border-color:var(--salvia); color:var(--oliva); font-weight:500; }
+  .quiz-opt.incorrect{ background:rgba(154,83,61,0.16); border-color:var(--ladrillo); color:var(--ladrillo); }
+  .quiz-opt:disabled{ cursor:default; }
+  .quiz-feedback{ margin-top:14px; font-size:0.85rem; color:var(--text-dim); text-align:center; min-height:18px; }
+  .quiz-next{ display:block; margin:20px auto 0; background:linear-gradient(135deg, var(--terracota), var(--ladrillo)); color:#fff; border:none; border-radius:10px; padding:11px 22px; font-size:0.9rem; font-weight:500; }
+  .quiz-result{ text-align:center; }
+  .quiz-result .score{ font-family:'Cormorant Garamond', serif; font-size:2.6rem; color:var(--terracota); font-style:italic; }
+  .quiz-result .msg{ margin-top:10px; color:var(--text-dim); font-size:0.92rem; }
+  .quiz-restart{ margin-top:18px; background:none; border:none; color:var(--ladrillo); text-decoration:underline; font-size:0.85rem; }
+
+  /* ---- Itinerario ---- */
+  .stops{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .stop-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:24px;
+  }
+  .stop-card .label{ font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--terracota); margin-bottom:8px; }
+  .stop-card h3{ font-size:1.3rem; font-style:italic; margin-bottom:6px; }
+  .stop-card .time{ font-size:0.95rem; color:var(--text); margin-bottom:4px; }
+  .stop-card .addr{ font-size:0.85rem; color:var(--text-dim); line-height:1.4; margin-bottom:14px; }
+  .stop-card a.maplink{
+    display:inline-block; font-size:0.82rem; border:1px solid var(--line); border-radius:8px;
+    padding:8px 14px; color:var(--ladrillo);
+  }
+
+  /* ---- Galería ---- */
+  .gallery{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .g-item{
+    aspect-ratio:1/1; border-radius:12px; overflow:hidden; position:relative;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .g-item span{ color:rgba(255,255,255,0.7); font-size:11px; letter-spacing:0.05em; }
+  .g1{ background:linear-gradient(135deg, var(--terracota), var(--caramelo)); grid-row:span 2; }
+  .g2{ background:linear-gradient(135deg, var(--oliva), var(--salvia)); }
+  .g3{ background:linear-gradient(135deg, var(--ladrillo), var(--cobre)); }
+  .g4{ background:linear-gradient(135deg, var(--caramelo), var(--oliva)); }
+  .g5{ background:linear-gradient(135deg, var(--salvia), var(--terracota)); grid-row:span 2; }
+  .g6{ background:linear-gradient(135deg, var(--cobre), var(--choco)); }
+
+  /* ---- Regalos ---- */
+  .gift-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .gift-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:26px; text-align:center;
+  }
+  .gift-card .ic{ font-size:1.8rem; margin-bottom:10px; }
+  .gift-card h3{ font-size:1.2rem; font-style:italic; margin-bottom:8px; }
+  .gift-card p{ font-size:0.88rem; color:var(--text-dim); line-height:1.5; margin:0 0 14px; }
+  .gift-card a.btn-outline{
+    display:inline-block; border:1px solid var(--terracota); color:var(--terracota);
+    border-radius:8px; padding:9px 18px; font-size:0.82rem;
+  }
+
+  /* ---- Confirmación (RSVP) reutilizado ---- */
+  .form-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:30px 24px;
+    max-width:520px; margin:0 auto;
+  }
+  .field{ margin-bottom:20px; }
+  .field label{
+    display:block; font-size:11px; font-weight:500; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--text-dim); margin-bottom:8px;
+  }
+  .field input[type=text], .field textarea{
+    width:100%; background:var(--ivory); border:1px solid var(--line); border-radius:10px;
+    padding:12px 14px; color:var(--text); font-size:1rem; font-family:'Work Sans', sans-serif;
+  }
+  .field textarea{ resize:vertical; min-height:70px; }
+  .pill-group{ display:flex; gap:10px; }
+  .pill{
+    flex:1; padding:13px 10px; text-align:center; border-radius:10px; border:1px solid var(--line);
+    background:transparent; color:var(--text-dim); font-size:0.92rem;
+    transition:background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .pill input{ position:absolute; opacity:0; pointer-events:none; }
+  .pill.selected-yes{ background:var(--terracota); border-color:var(--terracota); color:#fff; font-weight:500;}
+  .pill.selected-no{ background:var(--choco); border-color:var(--choco); color:var(--ivory); font-weight:500;}
+  .companions-wrap{ display:none; }
+  .companions-wrap.show{ display:block; }
+  .stepper{ display:flex; align-items:center; gap:14px; }
+  .stepper button{
+    width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--ivory);
+    color:var(--text); font-size:1.1rem; line-height:1;
+  }
+  .stepper span{ font-size:1.2rem; min-width:24px; text-align:center; }
+  .cta{
+    width:100%; padding:15px; border:none; border-radius:10px;
+    background:linear-gradient(135deg, var(--terracota), var(--ladrillo)); color:#fff;
+    font-weight:600; font-size:1rem; letter-spacing:0.02em; margin-top:6px;
+  }
+  .cta:disabled{ opacity:0.6; }
+  .form-msg{ font-size:0.85rem; margin-top:12px; text-align:center; min-height:18px; }
+  .form-msg.error{ color:var(--ladrillo); }
+  .form-msg.ok{ color:var(--salvia); }
+
+  #ticket-wrap{ display:none; max-width:520px; margin:0 auto; }
+  .ticket{
+    background:var(--card); color:var(--text); border-radius:var(--radius); overflow:hidden;
+    box-shadow:0 20px 50px rgba(74,56,48,0.18); animation:ticketIn .6s cubic-bezier(.2,.8,.2,1);
+  }
+  @keyframes ticketIn{ from{opacity:0; transform:translateY(24px) scale(0.98);} to{opacity:1; transform:translateY(0) scale(1);} }
+  .ticket-top{ padding:26px 24px 20px; text-align:center; }
+  .ticket-top .eyebrow{ color:var(--terracota); font-size:11px; letter-spacing:0.24em; text-transform:uppercase; margin-bottom:8px;}
+  .ticket-top h3{ font-style:italic; font-size:1.6rem; }
+  .ticket-top .guest-name{ font-size:1.1rem; margin-top:10px; font-weight:500; color:var(--text); }
+  .ticket-perf{ position:relative; height:0; border-top:2px dashed rgba(74,56,48,0.22); margin:0 24px; }
+  .ticket-perf::before, .ticket-perf::after{
+    content:""; position:absolute; top:-11px; width:22px; height:22px; border-radius:50%; background:var(--ivory);
+  }
+  .ticket-perf::before{ left:-34px; } .ticket-perf::after{ right:-34px; }
+  .ticket-bottom{ padding:24px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+  #qrcode{ background:#fff; padding:10px; border-radius:8px; border:1px solid var(--line); }
+  .ticket-code{ font-size:1rem; letter-spacing:0.12em; color:var(--choco); }
+  .ticket-meta{ font-size:0.82rem; color:var(--text-dim); text-align:center; line-height:1.5; }
+  .ticket-note{ font-size:0.78rem; color:var(--text-dim); text-align:center; margin-top:2px; opacity:0.85; }
+  .ticket-actions{ text-align:center; margin-top:16px; }
+  .ticket-actions button{ background:none; border:none; color:var(--ladrillo); font-size:0.85rem; text-decoration:underline; }
+
+  .lookup{ margin-top:22px; text-align:center; }
+  .lookup button.link-btn{ background:none; border:none; color:var(--text-dim); font-size:0.85rem; text-decoration:underline; }
+  .lookup-box{ display:none; margin-top:16px; justify-content:center; }
+  .lookup-box.show{ display:flex; gap:8px; }
+  .lookup-box input{ flex:1; max-width:260px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; color:var(--text); }
+  .lookup-box button{ background:var(--ivory); border:1px solid var(--line); color:var(--text); border-radius:10px; padding:10px 16px; font-size:0.85rem; }
+  .lookup-result{ margin-top:14px; font-size:0.88rem; color:var(--text-dim); text-align:center; }
+
+  /* ================= FOOTER ================= */
+  footer{ background:var(--oliva); color:var(--ivory); text-align:center; padding:50px 24px 30px; }
+  footer .fnames{ font-family:'Cormorant Garamond', serif; font-style:italic; font-size:1.8rem; }
+  footer .hashtag{ margin-top:8px; color:var(--caramelo); font-size:0.95rem; letter-spacing:0.02em; }
+  footer .admin-link{
+    display:block; margin:26px auto 0; background:none; border:none; color:rgba(247,241,223,0.4);
+    font-size:11px; letter-spacing:0.1em; text-transform:uppercase; font-family:'IBM Plex Mono', monospace;
+  }
+
+  /* ================= ADMIN OVERLAY ================= */
+  .overlay{
+    position:fixed; inset:0; background:rgba(20,16,12,0.88); display:flex; align-items:flex-start;
+    justify-content:center; padding:40px 16px; overflow-y:auto; z-index:80;
+  }
+  .overlay[hidden]{ display:none; }
+  .admin-panel{ background:var(--admin-bg); border:1px solid var(--admin-line); border-radius:var(--radius); width:100%; max-width:640px; padding:28px; position:relative; }
+  .admin-close{ position:absolute; top:18px; right:18px; background:none; border:none; color:var(--admin-text-dim); font-size:1.3rem; }
+  .admin-panel h2{ font-style:italic; font-size:1.6rem; margin-bottom:6px; color:var(--caramelo); }
+  .admin-sub{ color:var(--admin-text-dim); font-size:0.85rem; margin-bottom:22px; }
+  .pin-row{ display:flex; gap:8px; }
+  .pin-row input{ flex:1; background:var(--admin-panel); border:1px solid var(--admin-line); border-radius:10px; padding:12px; color:var(--admin-text); letter-spacing:0.2em; text-align:center; font-family:'IBM Plex Mono', monospace; }
+  .pin-row button{ background:var(--terracota); border:none; color:#fff; border-radius:10px; padding:0 20px; font-weight:600; }
+  .pin-error{ color:#E8998A; font-size:0.82rem; margin-top:10px; min-height:16px; }
+  .stat-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:24px; }
+  .stat{ background:var(--admin-panel); border:1px solid var(--admin-line); border-radius:12px; padding:14px 10px; text-align:center; }
+  .stat .n{ font-size:1.5rem; font-family:'Cormorant Garamond', serif; font-weight:600; color:var(--caramelo); }
+  .stat .l{ font-size:9px; letter-spacing:0.08em; text-transform:uppercase; color:var(--admin-text-dim); margin-top:4px; font-family:'IBM Plex Mono', monospace; }
+  .checkin-box{ background:var(--admin-panel); border:1px solid var(--admin-line); border-radius:12px; padding:18px; margin-bottom:24px; }
+  .checkin-box label{ font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--admin-text-dim); font-family:'IBM Plex Mono', monospace; }
+  .checkin-row{ display:flex; gap:8px; margin-top:8px; }
+  .checkin-row input{ flex:1; background:var(--admin-bg); border:1px solid var(--admin-line); border-radius:10px; padding:11px 12px; color:var(--admin-text); font-family:'IBM Plex Mono', monospace; }
+  .checkin-row button{ background:var(--caramelo); border:none; color:var(--ivory); border-radius:10px; padding:0 18px; font-weight:600; }
+  .checkin-result{ margin-top:12px; padding:12px; border-radius:10px; font-size:0.88rem; display:none; }
+  .scan-btn{ margin-top:10px; width:100%; background:var(--admin-bg); border:1px solid var(--admin-line); color:var(--admin-text); border-radius:10px; padding:10px; font-size:0.85rem; }
+  .scan-wrap{ margin-top:12px; text-align:center; }
+  .scan-wrap video{ width:100%; max-width:320px; border-radius:12px; border:1px solid var(--admin-line); background:#000; }
+  .scan-msg{ margin-top:8px; font-size:0.8rem; color:var(--admin-text-dim); min-height:16px; }
+  .scan-stop-btn{ margin-top:8px; background:none; border:1px solid var(--admin-line); color:var(--admin-text-dim); border-radius:8px; padding:8px 16px; font-size:0.8rem; }
+
+  /* ---- Bingo de la boda ---- */
+  .bingo-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; max-width:420px; margin:0 auto; }
+  .bingo-sq{
+    aspect-ratio:1/1; border:1px solid var(--line); border-radius:8px; background:var(--card);
+    color:var(--text); font-size:0.6rem; line-height:1.15; padding:6px;
+    display:flex; align-items:center; justify-content:center; text-align:center; font-family:'Work Sans', sans-serif;
+  }
+  .bingo-sq.marked{ background:var(--terracota); color:#fff; border-color:var(--terracota); }
+  .bingo-sq.free{ background:var(--oliva); color:var(--ivory); font-weight:600; font-size:0.68rem; }
+  .bingo-win{ display:none; margin-top:20px; text-align:center; background:rgba(217,120,63,0.15); border:1px solid var(--terracota); border-radius:12px; padding:16px; color:var(--ladrillo); font-weight:500; }
+  .bingo-win.show{ display:block; }
+  .bingo-actions{ text-align:center; margin-top:18px; }
+  .bingo-actions button{ background:none; border:1px solid var(--line); border-radius:8px; padding:9px 18px; font-size:0.82rem; color:var(--text-dim); }
+  .checkin-result.show{ display:block; }
+  .checkin-result.ok{ background:rgba(217,120,63,0.18); border:1px solid var(--terracota); color:#F0D9C4; }
+  .checkin-result.warn{ background:rgba(154,83,61,0.22); border:1px solid var(--ladrillo); color:#E8C4B8; }
+  .checkin-result.multi button{ display:block; width:100%; text-align:left; background:var(--admin-bg); border:1px solid var(--admin-line); color:var(--admin-text); padding:8px 10px; border-radius:8px; margin-top:6px; font-size:0.85rem; }
+  table{ width:100%; border-collapse:collapse; font-size:0.85rem; }
+  th{ text-align:left; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--admin-text-dim); padding:8px 6px; border-bottom:1px solid var(--admin-line); font-family:'IBM Plex Mono', monospace;}
+  td{ padding:9px 6px; border-bottom:1px solid rgba(217,120,63,0.12); vertical-align:top; color:var(--admin-text); }
+  .tag{ font-size:11px; padding:2px 8px; border-radius:20px; display:inline-block; }
+  .tag.yes{ background:rgba(217,120,63,0.2); color:#E8B98A; }
+  .tag.no{ background:rgba(154,83,61,0.22); color:#D9A190; }
+  .tag.in{ background:rgba(99,116,87,0.28); color:#BFD1AC; }
+  .admin-actions{ display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
+  .refresh-btn{ background:none; border:1px solid var(--admin-line); color:var(--admin-text-dim); border-radius:8px; padding:8px 14px; font-size:0.8rem; }
+  .privacy-note{ font-size:0.75rem; color:var(--admin-text-dim); opacity:0.85; margin-top:18px; line-height:1.5; }
+
+  @media (max-width:700px){
+    .stops{ grid-template-columns:1fr; }
+    .gift-grid{ grid-template-columns:1fr; }
+    .gallery{ grid-template-columns:repeat(2,1fr); }
+    .stat-row{ grid-template-columns:repeat(2,1fr); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .reveal{ opacity:1; transform:none; transition:none; }
+    .ticket{ animation:none; } html{ scroll-behavior:auto; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="navbar on-hero" id="navbar">
+  <div class="nav-logo" data-cfg="coupleInitials">R &amp; M</div>
+  <button class="nav-burger" id="nav-burger" aria-label="Abrir menú">☰</button>
+  <div class="nav-links" id="nav-links">
+    <a href="#historia">Nuestra Historia</a>
+    <a href="#itinerario">Itinerario</a>
+    <a href="#galeria">Galería</a>
+    <a href="#regalos">Regalos</a>
+    <a href="#rompehielos">Rompehielos</a>
+    <a href="#bingo">Bingo</a>
+    <a href="#confirmacion" class="nav-cta">Confirmar asistencia</a>
+  </div>
+</nav>
+
+<section class="hero" id="inicio">
+  <div class="hero-photo">
+    <div class="ph-label">📷 Foto de portada — reemplaza este bloque con tu imagen</div>
+  </div>
+  <div class="hero-content">
+    <div class="eyebrow">Nos casamos</div>
+    <h1 data-cfg="coupleNames">Renata &amp; Mateo</h1>
+    <div class="when"><span data-cfg="dateLine">Sábado 24 de octubre, 2026</span> · <span data-cfg="venueCity">Querétaro, México</span></div>
+    <a href="#confirmacion" class="cta-outline">Confirmar asistencia</a>
+  </div>
+</section>
+
+<section class="countdown wrap reveal">
+  <div class="section-eyebrow">Faltan</div>
+  <div class="cd-row" id="countdown-row">
+    <div class="cd-box"><div class="n" id="cd-days">00</div><div class="l">Días</div></div>
+    <div class="cd-box"><div class="n" id="cd-hours">00</div><div class="l">Horas</div></div>
+    <div class="cd-box"><div class="n" id="cd-mins">00</div><div class="l">Min</div></div>
+    <div class="cd-box"><div class="n" id="cd-secs">00</div><div class="l">Seg</div></div>
+  </div>
+</section>
+
+<section class="section" id="historia">
+  <div class="wrap-narrow">
+    <div class="section-eyebrow reveal">Cómo empezó todo</div>
+    <h2 class="section-title reveal">Nuestra Historia</h2>
+    <div class="section-sub reveal">Edita este bloque con su propia historia — estos son solo marcadores de ejemplo.</div>
+    <div class="timeline reveal">
+      <div class="tl-item">
+        <div class="tl-dot">1</div>
+        <div class="tl-body">
+          <div class="tl-title">Nos conocimos</div>
+          <div class="tl-text">Cuenta aquí dónde y cómo se conocieron.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">2</div>
+        <div class="tl-body">
+          <div class="tl-title">La primera cita</div>
+          <div class="tl-text">Describe ese momento que marcó el inicio de todo.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">3</div>
+        <div class="tl-body">
+          <div class="tl-title">La propuesta</div>
+          <div class="tl-text">Comparte cómo fue el día en que decidieron dar el siguiente paso.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="itinerario" style="background:var(--card);">
+  <div class="wrap">
+    <div class="section-eyebrow reveal">El gran día</div>
+    <h2 class="section-title reveal">Itinerario</h2>
+    <div class="section-sub reveal">Así se verá nuestro día — actualiza horarios y direcciones.</div>
+    <div class="stops reveal">
+      <div class="stop-card">
+        <div class="label">Ceremonia religiosa</div>
+        <h3 data-cfg="churchName">Parroquia de San Rafael Arcángel</h3>
+        <div class="time" data-cfg="churchTime">1:00 PM</div>
+        <div class="addr" data-cfg="churchAddress">Av. Constituyentes 210, Centro, Querétaro</div>
+        <a class="maplink" id="church-map" href="#" target="_blank" rel="noopener">Ver ubicación en el mapa</a>
+      </div>
+      <div class="stop-card">
+        <div class="label">Recepción</div>
+        <h3 data-cfg="venueName">Hacienda San Rafael</h3>
+        <div class="time" data-cfg="timeLine">4:00 PM</div>
+        <div class="addr" data-cfg="venueAddress">Carretera a los Encinos km 8, Querétaro</div>
+        <a class="maplink" id="venue-map" href="#" target="_blank" rel="noopener">Ver ubicación en el mapa</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="galeria" style="background:var(--card);">
+  <div class="wrap">
+    <div class="section-eyebrow reveal">Momentos</div>
+    <h2 class="section-title reveal">Galería</h2>
+    <div class="section-sub reveal">Reemplaza cada bloque de color con tus propias fotos.</div>
+    <div class="gallery reveal">
+      <div class="g-item g1"><span>Foto 1</span></div>
+      <div class="g-item g2"><span>Foto 2</span></div>
+      <div class="g-item g3"><span>Foto 3</span></div>
+      <div class="g-item g4"><span>Foto 4</span></div>
+      <div class="g-item g5"><span>Foto 5</span></div>
+      <div class="g-item g6"><span>Foto 6</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="regalos" style="background:var(--card);">
+  <div class="wrap-narrow">
+    <div class="section-eyebrow reveal">Con cariño</div>
+    <h2 class="section-title reveal">Mesa de Regalos</h2>
+    <div class="section-sub reveal">Tu presencia es nuestro mejor regalo. Si deseas obsequiarnos algo, esto nos haría mucha ilusión.</div>
+    <div class="gift-grid reveal">
+      <div class="gift-card">
+        <div class="ic">🎁</div>
+        <h3>Mesa de regalos</h3>
+        <p>Agrega aquí el enlace a tu mesa de regalos (Liverpool, Amazon, etc.)</p>
+        <a class="btn-outline" href="#" target="_blank" rel="noopener">Ver mesa de regalos</a>
+      </div>
+      <div class="gift-card">
+        <div class="ic">✉️</div>
+        <h3>Lluvia de sobres</h3>
+        <p>Si prefieres hacernos llegar un sobre, habrá un buzón especial durante la recepción.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="rompehielos">
+  <div class="wrap-narrow">
+    <div class="section-eyebrow reveal">Para romper el hielo</div>
+    <h2 class="section-title reveal">¿Qué tanto nos conoces?</h2>
+    <div class="section-sub reveal">Un juego rápido antes de confirmar tu asistencia — edita las preguntas en el array QUIZ del código.</div>
+    <div class="quiz-card reveal" id="quiz-card"></div>
+  </div>
+</section>
+
+<section class="section" id="confirmacion">
+  <div class="wrap-narrow">
+    <div class="section-eyebrow reveal">Último paso</div>
+    <h2 class="section-title reveal">Confirma tu asistencia</h2>
+    <div class="section-sub reveal">Al confirmar recibirás tu entrada con código QR para el acceso a la recepción.</div>
+
+    <div id="rsvp-form-wrap" class="reveal">
+      <form class="form-card" id="rsvp-form">
+        <div class="field">
+          <label for="f-name">Nombre completo</label>
+          <input type="text" id="f-name" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label>¿Asistirás?</label>
+          <div class="pill-group" id="attend-toggle">
+            <label class="pill" id="pill-yes"><input type="radio" name="attending" value="yes"> Sí, ahí estaré</label>
+            <label class="pill" id="pill-no"><input type="radio" name="attending" value="no"> No podré asistir</label>
+          </div>
+        </div>
+        <div class="field companions-wrap" id="companions-wrap">
+          <label>Acompañantes adicionales</label>
+          <div class="stepper">
+            <button type="button" id="comp-minus" aria-label="Restar acompañante">−</button>
+            <span id="comp-count">0</span>
+            <button type="button" id="comp-plus" aria-label="Sumar acompañante">+</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-msg">Mensaje (opcional)</label>
+          <textarea id="f-msg" placeholder="Unas palabras para los novios…"></textarea>
+        </div>
+        <button type="submit" class="cta" id="submit-btn">Confirmar asistencia</button>
+        <div class="form-msg" id="form-msg"></div>
+      </form>
+      <div class="lookup">
+        <button type="button" class="link-btn" id="lookup-toggle">¿Ya confirmaste? Busca tu entrada</button>
+        <div class="lookup-box" id="lookup-box">
+          <input type="text" id="lookup-input" placeholder="Tu nombre">
+          <button type="button" id="lookup-btn">Buscar</button>
+        </div>
+        <div class="lookup-result" id="lookup-result"></div>
+      </div>
+    </div>
+
+    <div id="ticket-wrap">
+      <div class="ticket">
+        <div class="ticket-top">
+          <div class="eyebrow">Entrada confirmada</div>
+          <h3 data-cfg="coupleNames">Renata &amp; Mateo</h3>
+          <div class="guest-name" id="ticket-name">—</div>
+        </div>
+        <div class="ticket-perf"></div>
+        <div class="ticket-bottom">
+          <div id="qrcode"></div>
+          <div class="ticket-code mono" id="ticket-code">EVT-000000</div>
+          <div class="ticket-meta">
+            <span id="ticket-party">1 persona</span> · <span data-cfg="dateLine">—</span><br>
+            <span data-cfg="venueName">—</span>
+          </div>
+          <div class="ticket-note">Muestra este código QR (o el código escrito) en la entrada.</div>
+        </div>
+      </div>
+      <div class="ticket-actions"><button type="button" id="edit-rsvp">Editar mi respuesta</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="bingo" style="background:var(--card);">
+  <div class="wrap-narrow">
+    <div class="section-eyebrow reveal">Solo el día de la boda</div>
+    <h2 class="section-title reveal">Bingo de la Boda</h2>
+    <div class="section-sub reveal">Marca las casillas conforme vayan pasando durante la fiesta — ¡el primero en completar una línea gana!</div>
+    <div class="bingo-grid reveal" id="bingo-grid"></div>
+    <div class="bingo-win" id="bingo-win">🎉 ¡BINGO! Ve con los novios por tu premio.</div>
+    <div class="bingo-actions reveal">
+      <button type="button" id="bingo-new">Nueva tarjeta</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="fnames" data-cfg="coupleNames">Renata &amp; Mateo</div>
+  <div class="hashtag" data-cfg="hashtag">#RenataYMateo2026</div>
+  <button type="button" class="admin-link" id="admin-open">Panel del organizador</button>
+</footer>
+
+<div class="overlay" id="admin-overlay" hidden>
+  <div class="admin-panel">
+    <button class="admin-close" id="admin-close" aria-label="Cerrar">×</button>
+    <div id="admin-login">
+      <h2>Panel del organizador</h2>
+      <div class="admin-sub">Ingresa el código de acceso para ver las confirmaciones.</div>
+      <div class="pin-row">
+        <input type="text" id="admin-pin" placeholder="Código de acceso" autocomplete="off">
+        <button type="button" id="admin-pin-submit">Entrar</button>
+      </div>
+      <div class="pin-error" id="admin-pin-error"></div>
+    </div>
+    <div id="admin-dashboard" hidden>
+      <h2>Confirmaciones</h2>
+      <div class="admin-sub">Vista en vivo de quién confirmó y quién ha ingresado.</div>
+      <div class="stat-row">
+        <div class="stat"><div class="n" id="stat-yes">0</div><div class="l">Confirmaron</div></div>
+        <div class="stat"><div class="n" id="stat-no">0</div><div class="l">No asisten</div></div>
+        <div class="stat"><div class="n" id="stat-total">0</div><div class="l">Personas en total</div></div>
+        <div class="stat"><div class="n" id="stat-in">0</div><div class="l">Ya ingresaron</div></div>
+      </div>
+      <div class="checkin-box">
+        <label>Verificar entrada (código QR o nombre)</label>
+        <div class="checkin-row">
+          <input type="text" id="checkin-input" placeholder="EVT-XXXXXX o nombre del invitado">
+          <button type="button" id="checkin-btn">Verificar</button>
+        </div>
+        <button type="button" class="scan-btn" id="scan-toggle">📷 Escanear con cámara</button>
+        <div class="scan-wrap" id="scan-wrap" hidden>
+          <video id="scan-video" playsinline muted></video>
+          <canvas id="scan-canvas" hidden></canvas>
+          <div class="scan-msg" id="scan-msg"></div>
+          <button type="button" class="scan-stop-btn" id="scan-stop">Detener cámara</button>
+        </div>
+        <div class="checkin-result" id="checkin-result"></div>
+      </div>
+      <div class="admin-actions">
+        <span class="admin-sub" style="margin:0;">Lista de invitados</span>
+        <button type="button" class="refresh-btn" id="refresh-btn">↻ Actualizar</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Nombre</th><th>Asiste</th><th>Grupo</th><th>Ingreso</th><th>Mensaje</th></tr></thead>
+          <tbody id="guest-table-body"></tbody>
+        </table>
+      </div>
+      <div class="privacy-note">Esta lista se guarda como dato compartido: cualquier persona con acceso a este panel y el código puede verla y editarla.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIGURACIÓN — edita aquí todos los datos de la boda
+   ============================================================ */
+const CONFIG = {
+  coupleInitials: "R & M",
+  coupleNames: "Renata & Mateo",
+  dateLine: "Sábado 24 de octubre, 2026",
+  venueCity: "Querétaro, México",
+  timeLine: "4:00 PM",
+  venueName: "Hacienda San Rafael",
+  venueAddress: "Carretera a los Encinos km 8, Querétaro",
+  churchName: "Parroquia de San Rafael Arcángel",
+  churchTime: "1:00 PM",
+  churchAddress: "Av. Constituyentes 210, Centro, Querétaro",
+  hashtag: "#RenataYMateo2026",
+  rsvpDeadline: "1 de octubre",
+  adminCode: "BODA2026",
+  // Fecha y hora exacta de la recepción, formato ISO, para la cuenta regresiva
+  weddingISO: "2026-10-24T16:00:00"
+};
+
+document.querySelectorAll('[data-cfg]').forEach(el=>{
+  const key = el.getAttribute('data-cfg');
+  if(CONFIG[key]) el.textContent = CONFIG[key];
+});
+document.getElementById('church-map').href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(CONFIG.churchName + " " + CONFIG.churchAddress);
+document.getElementById('venue-map').href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(CONFIG.venueName + " " + CONFIG.venueAddress);
+
+/* ================= NAV ================= */
+const navbar = document.getElementById('navbar');
+const navLinks = document.getElementById('nav-links');
+const navBurger = document.getElementById('nav-burger');
+function onScrollNav(){
+  if(window.scrollY > window.innerHeight * 0.7){
+    navbar.classList.remove('on-hero'); navbar.classList.add('scrolled');
+  }else{
+    navbar.classList.add('on-hero'); navbar.classList.remove('scrolled');
+  }
+}
+window.addEventListener('scroll', onScrollNav);
+onScrollNav();
+navBurger.addEventListener('click', ()=> navLinks.classList.toggle('open'));
+navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', ()=> navLinks.classList.remove('open')));
+
+/* ================= COUNTDOWN ================= */
+const target = new Date(CONFIG.weddingISO).getTime();
+function updateCountdown(){
+  const now = Date.now();
+  let diff = target - now;
+  if(diff < 0) diff = 0;
+  const d = Math.floor(diff/86400000);
+  const h = Math.floor((diff%86400000)/3600000);
+  const m = Math.floor((diff%3600000)/60000);
+  const s = Math.floor((diff%60000)/1000);
+  document.getElementById('cd-days').textContent = String(d).padStart(2,'0');
+  document.getElementById('cd-hours').textContent = String(h).padStart(2,'0');
+  document.getElementById('cd-mins').textContent = String(m).padStart(2,'0');
+  document.getElementById('cd-secs').textContent = String(s).padStart(2,'0');
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+/* ================= REVEAL ================= */
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(!reduceMotion && 'IntersectionObserver' in window){
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('is-visible'); io.unobserve(e.target);} });
+  }, {threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+}else{
+  document.querySelectorAll('.reveal').forEach(el=>el.classList.add('is-visible'));
+}
+
+
+
+const sb = supabase.createClient(
+  'https://tjickenjiwdiymxnlkgt.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqaWNrZW5qaXdkaXlteG5sa2d0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzOTM0ODcsImV4cCI6MjEwMzk2OTQ4N30.2PhRr3YxekXaOFD0i7zNlpwqNFl7cCG5q-yZ-jIT_8M'
+);
+
+async function loadGuests(){
+  const { data, error } = await sb.from('rsvps').select('*').order('created_at');
+  if(error){ console.error(error); return []; }
+  return data.map(r => ({
+    id:r.id, name:r.name, attending:r.attending, companions:r.companions,
+    message:r.message, code:r.code, checkedIn:r.checked_in,
+    checkedInAt:r.checked_in_at, timestamp:new Date(r.created_at).getTime()
+  }));
+}
+
+// Ojo: cambia el patrón de "guardar toda la lista" por "guardar solo el invitado que cambió"
+async function upsertGuest(guest){
+  const { error } = await sb.from('rsvps').upsert({
+    id:guest.id, name:guest.name, attending:guest.attending, companions:guest.companions,
+    message:guest.message, code:guest.code, checked_in:guest.checkedIn, checked_in_at:guest.checkedInAt
+  }, { onConflict:'id' });
+  return !error;
+}
+
+/* ============================================================
+   ALMACENAMIENTO — window.storage (persistente, compartido).
+   Para producción, sustituye loadGuests()/saveGuests() por
+   llamadas a una tabla `rsvps` en Supabase.
+   ============================================================ */
+const STORAGE_KEY = 'guestlist';
+/*async function loadGuests(){
+  try{ const res = await window.storage.get(STORAGE_KEY, true); return res ? JSON.parse(res.value) : []; }
+  catch(e){ return []; }
+}*/
+async function saveGuests(list){
+  try{ const res = await window.storage.set(STORAGE_KEY, JSON.stringify(list), true); return !!res; }
+  catch(e){ return false; }
+}
+function genCode(){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = ''; for(let i=0;i<6;i++) s += chars[Math.floor(Math.random()*chars.length)];
+  return 'EVT-' + s;
+}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ================= FORMULARIO RSVP ================= */
+let attending = null, companions = 0;
+const pillYes = document.getElementById('pill-yes');
+const pillNo = document.getElementById('pill-no');
+const companionsWrap = document.getElementById('companions-wrap');
+const compCount = document.getElementById('comp-count');
+
+pillYes.addEventListener('click', ()=>{
+  attending = true; pillYes.classList.add('selected-yes'); pillNo.classList.remove('selected-no');
+  companionsWrap.classList.add('show');
+});
+pillNo.addEventListener('click', ()=>{
+  attending = false; pillNo.classList.add('selected-no'); pillYes.classList.remove('selected-yes');
+  companionsWrap.classList.remove('show');
+});
+document.getElementById('comp-minus').addEventListener('click', ()=>{
+  companions = Math.max(0, companions-1); compCount.textContent = companions;
+});
+document.getElementById('comp-plus').addEventListener('click', ()=>{
+  companions = Math.min(15, companions+1); compCount.textContent = companions;
+});
+
+const form = document.getElementById('rsvp-form');
+const submitBtn = document.getElementById('submit-btn');
+const formMsg = document.getElementById('form-msg');
+
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const name = document.getElementById('f-name').value.trim();
+  const message = document.getElementById('f-msg').value.trim();
+  formMsg.textContent = ''; formMsg.className = 'form-msg';
+  if(!name){ formMsg.textContent='Escribe tu nombre completo.'; formMsg.className='form-msg error'; return; }
+  if(attending === null){ formMsg.textContent='Indica si asistirás o no.'; formMsg.className='form-msg error'; return; }
+
+  submitBtn.disabled = true; submitBtn.textContent = 'Guardando…';
+  const list = await loadGuests();
+  const key = name.toLowerCase();
+  let guest = list.find(g => g.name.toLowerCase() === key);
+  if(guest){
+    guest.attending = attending; guest.companions = attending ? companions : 0;
+    guest.message = message; guest.updatedAt = Date.now();
+    if(!guest.code) guest.code = genCode();
+  }else{
+    guest = { id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+      name, attending, companions: attending ? companions : 0, message, code: genCode(),
+      checkedIn:false, checkedInAt:null, timestamp: Date.now() };
+    list.push(guest);
+  }
+  const ok = await saveGuests(list);
+  submitBtn.disabled = false; submitBtn.textContent = 'Confirmar asistencia';
+  if(!ok){ formMsg.textContent='No se pudo guardar tu confirmación. Intenta de nuevo.'; formMsg.className='form-msg error'; return; }
+
+  if(attending){ showTicket(guest); }
+  else{
+    document.getElementById('rsvp-form-wrap').style.display = 'none';
+    document.getElementById('ticket-wrap').style.display = 'block';
+    document.getElementById('ticket-wrap').innerHTML =
+      '<div class="form-card" style="text-align:center;">' +
+      '<div class="eyebrow" style="color:var(--ladrillo); font-size:11px; letter-spacing:0.24em; text-transform:uppercase;">Respuesta registrada</div>' +
+      '<p style="color:var(--text-dim); margin-top:10px;">Lamentamos que no puedas acompañarnos, ' + escapeHtml(name) + '. ¡Gracias por avisar!</p>' +
+      '<button type="button" id="edit-rsvp-2" style="margin-top:14px; background:none; border:none; color:var(--ladrillo); text-decoration:underline;">Editar mi respuesta</button>' +
+      '</div>';
+    document.getElementById('edit-rsvp-2').addEventListener('click', resetForm);
+  }
+});
+
+function showTicket(guest){
+  document.getElementById('rsvp-form-wrap').style.display = 'none';
+  const wrap = document.getElementById('ticket-wrap');
+  wrap.style.display = 'block';
+  document.getElementById('ticket-name').textContent = guest.name;
+  document.getElementById('ticket-code').textContent = guest.code;
+  const total = 1 + (guest.companions || 0);
+  document.getElementById('ticket-party').textContent = total + (total===1 ? ' persona' : ' personas');
+  const qrEl = document.getElementById('qrcode');
+  qrEl.innerHTML = '';
+  if(window.QRCode){
+    new QRCode(qrEl, { text: guest.code, width:176, height:176, colorDark:"#3F503D", colorLight:"#FFFFFF", correctLevel: QRCode.CorrectLevel.M });
+  }else{ qrEl.textContent = guest.code; }
+}
+function resetForm(){
+  document.getElementById('ticket-wrap').style.display = 'none';
+  document.getElementById('rsvp-form-wrap').style.display = 'block';
+}
+document.getElementById('edit-rsvp').addEventListener('click', resetForm);
+
+const lookupToggle = document.getElementById('lookup-toggle');
+const lookupBox = document.getElementById('lookup-box');
+lookupToggle.addEventListener('click', ()=> lookupBox.classList.toggle('show'));
+document.getElementById('lookup-btn').addEventListener('click', async ()=>{
+  const q = document.getElementById('lookup-input').value.trim().toLowerCase();
+  const resultEl = document.getElementById('lookup-result');
+  if(!q){ resultEl.textContent = 'Escribe tu nombre.'; return; }
+  const list = await loadGuests();
+  const found = list.find(g => g.name.toLowerCase() === q) || list.find(g => g.name.toLowerCase().includes(q));
+  if(!found){ resultEl.textContent = 'No encontramos una confirmación con ese nombre.'; return; }
+  resultEl.textContent = '';
+  if(found.attending){ document.getElementById('rsvp-form-wrap').style.display='none'; showTicket(found); }
+  else{ resultEl.textContent = 'Según nuestros registros, ' + found.name + ' indicó que no podrá asistir.'; }
+});
+
+/* ================= PANEL DEL ORGANIZADOR ================= */
+const overlay = document.getElementById('admin-overlay');
+document.getElementById('admin-open').addEventListener('click', ()=>{
+  overlay.hidden = false;
+  document.getElementById('admin-login').hidden = false;
+  document.getElementById('admin-dashboard').hidden = true;
+  document.getElementById('admin-pin').value = '';
+  document.getElementById('admin-pin-error').textContent = '';
+});
+document.getElementById('admin-close').addEventListener('click', ()=>{ overlay.hidden = true; stopScan(); });
+overlay.addEventListener('click', (e)=>{ if(e.target === overlay){ overlay.hidden = true; stopScan(); } });
+
+/* ============================================================
+   ESCANEO CON CÁMARA — usa jsQR para leer el código QR
+   directamente desde la cámara del dispositivo, sin apps externas.
+   ============================================================ */
+let scanStream = null;
+let scanRAF = null;
+
+document.getElementById('scan-toggle').addEventListener('click', async ()=>{
+  const wrap = document.getElementById('scan-wrap');
+  const msgEl = document.getElementById('scan-msg');
+  const video = document.getElementById('scan-video');
+  wrap.hidden = false;
+  msgEl.textContent = 'Solicitando acceso a la cámara…';
+  try{
+    scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+    video.srcObject = scanStream;
+    await video.play();
+    msgEl.textContent = 'Apunta la cámara al código QR del invitado.';
+    scanLoop();
+  }catch(err){
+    msgEl.textContent = 'No se pudo acceder a la cámara. Verifica los permisos o usa el campo de texto.';
+  }
+});
+
+function scanLoop(){
+  const video = document.getElementById('scan-video');
+  const canvas = document.getElementById('scan-canvas');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+  function tick(){
+    if(!scanStream) return;
+    if(video.readyState === video.HAVE_ENOUGH_DATA && window.jsQR){
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height);
+      if(code && code.data){
+        document.getElementById('checkin-input').value = code.data;
+        stopScan();
+        document.getElementById('checkin-btn').click();
+        return;
+      }
+    }
+    scanRAF = requestAnimationFrame(tick);
+  }
+  scanRAF = requestAnimationFrame(tick);
+}
+
+function stopScan(){
+  if(scanRAF) cancelAnimationFrame(scanRAF);
+  scanRAF = null;
+  if(scanStream){ scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
+  document.getElementById('scan-wrap').hidden = true;
+}
+document.getElementById('scan-stop').addEventListener('click', stopScan);
+document.getElementById('admin-pin-submit').addEventListener('click', async ()=>{
+  const val = document.getElementById('admin-pin').value.trim();
+  if(val === CONFIG.adminCode){
+    document.getElementById('admin-login').hidden = true;
+    document.getElementById('admin-dashboard').hidden = false;
+    await renderDashboard();
+  }else{ document.getElementById('admin-pin-error').textContent = 'Código incorrecto.'; }
+});
+document.getElementById('admin-pin').addEventListener('keydown', (e)=>{ if(e.key === 'Enter') document.getElementById('admin-pin-submit').click(); });
+
+async function renderDashboard(){
+  const list = await loadGuests();
+  const attendingList = list.filter(g=>g.attending);
+  const notAttending = list.filter(g=>!g.attending);
+  const totalPeople = attendingList.reduce((sum,g)=> sum + 1 + (g.companions||0), 0);
+  const checkedIn = attendingList.filter(g=>g.checkedIn).length;
+  document.getElementById('stat-yes').textContent = attendingList.length;
+  document.getElementById('stat-no').textContent = notAttending.length;
+  document.getElementById('stat-total').textContent = totalPeople;
+  document.getElementById('stat-in').textContent = checkedIn;
+  const sorted = [...list].sort((a,b)=> b.timestamp - a.timestamp);
+  const tbody = document.getElementById('guest-table-body');
+  tbody.innerHTML = sorted.map(g => `
+    <tr>
+      <td>${escapeHtml(g.name)}</td>
+      <td>${g.attending ? '<span class="tag yes">Sí</span>' : '<span class="tag no">No</span>'}</td>
+      <td>${g.attending ? (1 + (g.companions||0)) : '—'}</td>
+      <td>${g.attending ? (g.checkedIn ? '<span class="tag in">Ingresó</span>' : '—') : '—'}</td>
+      <td style="max-width:160px; color:var(--admin-text-dim); font-size:0.8rem;">${escapeHtml(g.message || '')}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="5" style="color:var(--admin-text-dim);">Aún no hay confirmaciones.</td></tr>';
+}
+document.getElementById('refresh-btn').addEventListener('click', renderDashboard);
+
+document.getElementById('checkin-btn').addEventListener('click', async ()=>{
+  const input = document.getElementById('checkin-input');
+  const q = input.value.trim();
+  const resultEl = document.getElementById('checkin-result');
+  resultEl.className = 'checkin-result show';
+  if(!q){ resultEl.textContent = 'Escribe un código o nombre.'; resultEl.classList.add('warn'); return; }
+  const list = await loadGuests();
+  const qLower = q.toLowerCase();
+  let matches = list.filter(g => g.code && g.code.toLowerCase() === qLower);
+  if(matches.length === 0){ matches = list.filter(g => g.name.toLowerCase().includes(qLower)); }
+  if(matches.length === 0){
+    resultEl.innerHTML = 'Código no válido — no se encontró ningún invitado.';
+    resultEl.className = 'checkin-result show warn'; return;
+  }
+  if(matches.length > 1){
+    resultEl.className = 'checkin-result show multi';
+    resultEl.innerHTML = 'Varias coincidencias, selecciona una:' +
+      matches.map(g => `<button type="button" data-id="${g.id}">${escapeHtml(g.name)} (${g.code})</button>`).join('');
+    resultEl.querySelectorAll('button').forEach(btn=>{ btn.addEventListener('click', ()=> checkInGuest(btn.dataset.id)); });
+    return;
+  }
+  checkInGuest(matches[0].id);
+});
+document.getElementById('checkin-input').addEventListener('keydown', (e)=>{ if(e.key === 'Enter') document.getElementById('checkin-btn').click(); });
+
+async function checkInGuest(id){
+  const resultEl = document.getElementById('checkin-result');
+  const list = await loadGuests();
+  const guest = list.find(g => g.id === id);
+  if(!guest){ resultEl.className='checkin-result show warn'; resultEl.textContent='No se encontró al invitado.'; return; }
+  if(!guest.attending){
+    resultEl.className = 'checkin-result show warn';
+    resultEl.textContent = escapeHtml(guest.name) + ' indicó que NO asistiría. Verifica antes de dejarlo pasar.'; return;
+  }
+  if(guest.checkedIn){
+    const time = new Date(guest.checkedInAt).toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit'});
+    resultEl.className = 'checkin-result show warn';
+    resultEl.textContent = escapeHtml(guest.name) + ' ya había ingresado a las ' + time + '.'; return;
+  }
+  guest.checkedIn = true; guest.checkedInAt = Date.now();
+  await upsertGuest(list);
+  const total = 1 + (guest.companions||0);
+  resultEl.className = 'checkin-result show ok';
+  resultEl.textContent = '✔ Bienvenido, ' + guest.name + ' — grupo de ' + total + (total===1?' persona':' personas') + '.';
+  document.getElementById('checkin-input').value = '';
+  renderDashboard();
+}
+
+/* ============================================================
+   ROMPEHIELOS — mini quiz sobre la pareja
+   Edita las preguntas, opciones y la opción correcta (índice
+   base 0) aquí. "note" es el dato curioso que se muestra
+   después de responder.
+   ============================================================ */
+const QUIZ = [
+  { q: "¿En qué ciudad se conocieron?", options: ["Querétaro","Ciudad de México","Guadalajara"], correct: 0, note: "Fue en una cafetería del centro." },
+  { q: "¿Cuál es su película favorita como pareja?", options: ["La La Land","Coco","El Diario de una Pasión"], correct: 0, note: "La ven cada aniversario." },
+  { q: "¿Cuántos años llevan juntos?", options: ["3 años","5 años","7 años"], correct: 1, note: "¡El tiempo vuela!" },
+  { q: "¿Quién propuso matrimonio?", options: ["Mateo","Renata","Fue una decisión mutua"], correct: 0, note: "Fue una sorpresa total." }
+];
+let quizIndex = 0, quizScore = 0;
+
+function renderQuiz(){
+  const card = document.getElementById('quiz-card');
+  if(!card) return;
+
+  if(quizIndex >= QUIZ.length){
+    let msg;
+    if(quizScore === QUIZ.length) msg = "¡Wow, nos conoces perfecto! 💛";
+    else if(quizScore >= Math.ceil(QUIZ.length/2)) msg = "¡Nada mal! Ya casi eres de la familia.";
+    else msg = "Bueno, ¡para eso está la boda, para conocernos mejor!";
+    card.innerHTML =
+      '<div class="quiz-result">' +
+        '<div class="score">' + quizScore + ' / ' + QUIZ.length + '</div>' +
+        '<div class="msg">' + msg + '</div>' +
+        '<button type="button" class="quiz-restart" id="quiz-restart">Intentar de nuevo</button>' +
+      '</div>';
+    document.getElementById('quiz-restart').addEventListener('click', ()=>{
+      quizIndex = 0; quizScore = 0; renderQuiz();
+    });
+    return;
+  }
+
+  const item = QUIZ[quizIndex];
+  card.innerHTML =
+    '<div class="quiz-progress">Pregunta ' + (quizIndex+1) + ' de ' + QUIZ.length + '</div>' +
+    '<div class="quiz-question">' + item.q + '</div>' +
+    '<div class="quiz-options" id="quiz-options">' +
+      item.options.map((opt,i)=> '<button type="button" class="quiz-opt" data-i="' + i + '">' + opt + '</button>').join('') +
+    '</div>' +
+    '<div class="quiz-feedback" id="quiz-feedback"></div>';
+
+  card.querySelectorAll('.quiz-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const chosen = parseInt(btn.dataset.i, 10);
+      const allOpts = card.querySelectorAll('.quiz-opt');
+      allOpts.forEach(b => b.disabled = true);
+
+      if(chosen === item.correct){
+        btn.classList.add('correct');
+        quizScore++;
+        document.getElementById('quiz-feedback').textContent = '¡Correcto! ' + item.note;
+      }else{
+        btn.classList.add('incorrect');
+        allOpts[item.correct].classList.add('correct');
+        document.getElementById('quiz-feedback').textContent = item.note;
+      }
+
+      const next = document.createElement('button');
+      next.type = 'button';
+      next.className = 'quiz-next';
+      next.textContent = (quizIndex === QUIZ.length - 1) ? 'Ver resultado' : 'Siguiente pregunta';
+      next.addEventListener('click', ()=>{ quizIndex++; renderQuiz(); });
+      card.appendChild(next);
+    });
+  });
+}
+renderQuiz();
+
+/* ============================================================
+   BINGO DE LA BODA — juego para el día del evento.
+   Edita las frases en el array BINGO_PHRASES; cada tarjeta toma
+   24 al azar y las acomoda en una cuadrícula de 5x5 con un
+   espacio libre al centro.
+   ============================================================ */
+const BINGO_PHRASES = [
+  "Alguien llora durante los votos",
+  "Se cae una servilleta de la mesa",
+  "El brindis dura más de 2 minutos",
+  "Alguien grita \"¡Beso!\"",
+  "Los novios bailan su primera canción",
+  "Alguien graba todo con el celular",
+  "Se rompe el hielo con un chiste malo",
+  "Un niño se roba la pista de baile",
+  "Alguien pide otra copa de vino",
+  "Los papás de los novios bailan juntos",
+  "Se apaga la música por un segundo",
+  "Alguien brinda con la copa equivocada",
+  "El DJ pone una canción noventera",
+  "Alguien se toma una selfie con los novios",
+  "Se forma una fila larga para el buffet",
+  "Alguien pierde un zapato bailando",
+  "Se lanza el ramo y hay caos",
+  "Alguien cuenta cómo conoció a los novios",
+  "Se llena el buzón de sobres",
+  "Alguien baila descalzo",
+  "Se escucha \"¡otra, otra!\"",
+  "Los novios se dan de comer pastel",
+  "Alguien llora de la emoción (otra vez)",
+  "Se arma una conga",
+  "Preguntan \"¿ya se van de luna de miel?\"",
+  "El pastel tarda en cortarse",
+  "Se toma una foto grupal",
+  "Alguien baila con los abuelos",
+  "Se escucha un brindis improvisado",
+  "Alguien confunde el nombre de un invitado"
+];
+
+let bingoCard = [];
+
+function shuffleArray(arr){
+  const a = [...arr];
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function generateBingoCard(){
+  const picked = shuffleArray(BINGO_PHRASES).slice(0, 24).map(text => ({ text, marked:false, free:false }));
+  picked.splice(12, 0, { text:"¡Nos casamos!", marked:true, free:true });
+  bingoCard = picked;
+  document.getElementById('bingo-win').classList.remove('show');
+  renderBingo();
+}
+
+function checkBingoWin(){
+  const size = 5;
+  const marked = i => bingoCard[i].marked;
+  for(let r=0;r<size;r++){
+    if([0,1,2,3,4].every(c => marked(r*size+c))) return true;
+  }
+  for(let c=0;c<size;c++){
+    if([0,1,2,3,4].every(r => marked(r*size+c))) return true;
+  }
+  if([0,1,2,3,4].every(i => marked(i*size+i))) return true;
+  if([0,1,2,3,4].every(i => marked(i*size+(size-1-i)))) return true;
+  return false;
+}
+
+function renderBingo(){
+  const grid = document.getElementById('bingo-grid');
+  if(!grid) return;
+  grid.innerHTML = bingoCard.map((sq,i) =>
+    '<button type="button" class="bingo-sq ' + (sq.marked?'marked ':'') + (sq.free?'free':'') + '" data-i="' + i + '">' + sq.text + '</button>'
+  ).join('');
+  grid.querySelectorAll('.bingo-sq').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const i = parseInt(btn.dataset.i, 10);
+      if(bingoCard[i].free) return;
+      bingoCard[i].marked = !bingoCard[i].marked;
+      renderBingo();
+      if(checkBingoWin()){
+        document.getElementById('bingo-win').classList.add('show');
+      }
+    });
+  });
+}
+document.getElementById('bingo-new').addEventListener('click', generateBingoCard);
+generateBingoCard();
+</script>
+</body>
+</html>
