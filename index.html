@@ -402,7 +402,10 @@
 
 <section class="hero" id="inicio">
   <div class="hero-photo">
-    <div class="ph-label">📷 Foto de portada — reemplaza este bloque con tu imagen</div>
+    <video width="640" height="360" controls poster="imagen-de-portada.jpg">
+      <source src="/SYM02.mp4" type="video/mp4">
+      Tu navegador no soporta la reproducción de video HTML5.
+    </video>
   </div>
   <div class="hero-content">
     <div class="eyebrow">Nos casamos</div>
@@ -803,7 +806,7 @@ function renderCompanions(){
     btn.addEventListener('click', ()=>{
       companionRows.splice(parseInt(btn.dataset.i,10), 1);
       renderCompanions();
-    }); 
+    });
   });
 }
 document.getElementById('add-companion').addEventListener('click', ()=>{
