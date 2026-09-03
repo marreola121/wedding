@@ -6,6 +6,8 @@
 <title>Renata & Mateo — Nuestra Boda</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500&family=Work+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- agrégalo antes de tu <script> principal -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
 <style>
@@ -742,16 +744,42 @@ if(!reduceMotion && 'IntersectionObserver' in window){
   document.querySelectorAll('.reveal').forEach(el=>el.classList.add('is-visible'));
 }
 
+
+
+const sb = supabase.createClient(
+  'https://TU-PROYECTO.supabase.co',
+  'TU-ANON-PUBLIC-KEY'
+);
+
+async function loadGuests(){
+  const { data, error } = await sb.from('rsvps').select('*').order('created_at');
+  if(error){ console.error(error); return []; }
+  return data.map(r => ({
+    id:r.id, name:r.name, attending:r.attending, companions:r.companions,
+    message:r.message, code:r.code, checkedIn:r.checked_in,
+    checkedInAt:r.checked_in_at, timestamp:new Date(r.created_at).getTime()
+  }));
+}
+
+// Ojo: cambia el patrón de "guardar toda la lista" por "guardar solo el invitado que cambió"
+async function upsertGuest(guest){
+  const { error } = await sb.from('rsvps').upsert({
+    id:guest.id, name:guest.name, attending:guest.attending, companions:guest.companions,
+    message:guest.message, code:guest.code, checked_in:guest.checkedIn, checked_in_at:guest.checkedInAt
+  }, { onConflict:'id' });
+  return !error;
+}
+
 /* ============================================================
    ALMACENAMIENTO — window.storage (persistente, compartido).
    Para producción, sustituye loadGuests()/saveGuests() por
    llamadas a una tabla `rsvps` en Supabase.
    ============================================================ */
 const STORAGE_KEY = 'guestlist';
-async function loadGuests(){
+/*async function loadGuests(){
   try{ const res = await window.storage.get(STORAGE_KEY, true); return res ? JSON.parse(res.value) : []; }
   catch(e){ return []; }
-}
+}*/
 async function saveGuests(list){
   try{ const res = await window.storage.set(STORAGE_KEY, JSON.stringify(list), true); return !!res; }
   catch(e){ return false; }
@@ -1008,7 +1036,7 @@ async function checkInGuest(id){
     resultEl.textContent = escapeHtml(guest.name) + ' ya había ingresado a las ' + time + '.'; return;
   }
   guest.checkedIn = true; guest.checkedInAt = Date.now();
-  await saveGuests(list);
+  await upsertGuest(list);
   const total = 1 + (guest.companions||0);
   resultEl.className = 'checkin-result show ok';
   resultEl.textContent = '✔ Bienvenido, ' + guest.name + ' — grupo de ' + total + (total===1?' persona':' personas') + '.';
