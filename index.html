@@ -758,6 +758,24 @@ document.querySelectorAll('[data-cfg]').forEach(el=>{
 document.getElementById('church-map').href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(CONFIG.churchName + " " + CONFIG.churchAddress);
 document.getElementById('venue-map').href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(CONFIG.venueName + " " + CONFIG.venueAddress);
 
+// Colores sugeridos para el código de vestimenta — edítalos si cambias la paleta de la boda
+const DRESS_PALETTE = [
+  { name:"Terracota", hex:"#D9783F" },
+  { name:"Cobre", hex:"#B75D4F" },
+  { name:"Ladrillo", hex:"#9A533D" },
+  { name:"Caramelo", hex:"#996037" },
+  { name:"Salvia", hex:"#637457" },
+  { name:"Verde olivo", hex:"#3F503D" }
+];
+const dsWrap = document.getElementById('dress-swatches');
+if(dsWrap){
+  dsWrap.innerHTML = DRESS_PALETTE.map(c => `
+    <div class="ds-swatch">
+      <div class="dot" style="background:${c.hex};"></div>
+      <div class="lbl">${c.name}</div>
+    </div>
+  `).join('');
+
 /* ================= NAV ================= */
 const navbar = document.getElementById('navbar');
 const navLinks = document.getElementById('nav-links');
