@@ -113,6 +113,73 @@
     .nav-burger{ display:block; }
   }
 
+  /* ================= SOBRE DE BIENVENIDA (solo mobile) ================= */
+  .envelope-overlay{
+    position:fixed; inset:0; z-index:200;
+    display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 50% 30%, #4a5a3f 0%, var(--oliva) 55%, #2c3627 100%);
+    transition:opacity .6s ease, visibility .6s ease;
+  }
+  .envelope-overlay.is-hidden{ opacity:0; visibility:hidden; pointer-events:none; }
+  .envelope-scene{
+    display:flex; flex-direction:column; align-items:center; gap:34px;
+    padding:0 24px; text-align:center;
+    perspective:1000px;
+  }
+  .envelope-intro-text{ color:rgba(255,255,255,0.85); }
+  .envelope-intro-text .eyebrow{ font-size:11px; letter-spacing:0.3em; text-transform:uppercase; opacity:0.75; margin-bottom:10px; }
+  .envelope-intro-text h2{ color:#fff; font-style:italic; font-size:1.7rem; }
+  .envelope{ position:relative; width:230px; height:154px; }
+  .env-back{
+    position:absolute; inset:0; border-radius:6px;
+    background:linear-gradient(160deg, var(--card), #EFE4C9);
+    box-shadow:0 24px 46px rgba(0,0,0,0.35);
+  }
+  .env-card{
+    position:absolute; left:14px; right:14px; top:0; height:134px;
+    background:var(--ivory); border:1px solid var(--line); border-radius:5px;
+    box-shadow:0 12px 22px rgba(0,0,0,0.25);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+    padding:10px; z-index:2;
+    opacity:0;
+    transform:translateY(10px) scale(0.94);
+    transition:opacity .5s ease .3s, transform .8s cubic-bezier(.2,.8,.2,1) .3s;
+  }
+  .env-card .eyebrow{ font-size:9px; letter-spacing:0.24em; text-transform:uppercase; color:var(--text-dim); }
+  .env-card .names{ font-family:'Cormorant Garamond', serif; font-style:italic; font-weight:600; color:var(--oliva); font-size:1.25rem; }
+  .env-card .when{ font-size:0.7rem; color:var(--text-dim); }
+  .env-pocket{
+    position:absolute; inset:0; z-index:3; border-radius:0 0 6px 6px;
+    background:linear-gradient(160deg, var(--terracota), var(--ladrillo));
+    clip-path:polygon(0 100%, 50% 42%, 100% 100%);
+  }
+  .env-flap{
+    position:absolute; inset:0; z-index:4; border-radius:6px 6px 0 0;
+    background:linear-gradient(200deg, var(--cobre), var(--ladrillo));
+    clip-path:polygon(0 0, 50% 56%, 100% 0);
+    transform-origin:top center;
+    transition:transform 1s cubic-bezier(.4,0,.2,1);
+  }
+  .env-seal{
+    position:absolute; left:50%; top:41%; width:32px; height:32px; z-index:5;
+    transform:translate(-50%,-50%);
+    background:var(--terracota); border-radius:50%; color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:14px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.3);
+    transition:opacity .35s ease, transform .35s ease;
+  }
+  .envelope.is-open .env-flap{ transform:rotateX(-180deg); }
+  .envelope.is-open .env-seal{ opacity:0; transform:translate(-50%,-50%) scale(0.4); }
+  .envelope.is-open .env-card{ opacity:1; transform:translateY(-46px) scale(1); }
+  .envelope-open-btn{
+    border:1px solid rgba(255,255,255,0.75); color:#fff; background:none;
+    padding:13px 28px; border-radius:8px; font-size:0.85rem; letter-spacing:0.04em;
+  }
+  /* Fuera de mobile la animación no aplica: el sobre nunca se muestra. */
+  @media (min-width:761px){
+    .envelope-overlay{ display:none !important; }
+  }
+
   /* ================= HERO ================= */
   .hero{
     position:relative; min-height:100vh;
@@ -418,6 +485,27 @@
 </style>
 </head>
 <body>
+
+<div class="envelope-overlay" id="envelope-overlay" hidden>
+  <div class="envelope-scene">
+    <div class="envelope-intro-text">
+      <div class="eyebrow">Tienes una invitación</div>
+      <h2 data-cfg="coupleNames">Sara &amp; Marco</h2>
+    </div>
+    <div class="envelope" id="envelope">
+      <div class="env-back"></div>
+      <div class="env-card">
+        <div class="eyebrow">Nos casamos</div>
+        <div class="names" data-cfg="coupleNames">Sara &amp; Marco</div>
+        <div class="when"><span data-cfg="dateLine">Sábado 28 de Noviembre, 2026</span></div>
+      </div>
+      <div class="env-pocket"></div>
+      <div class="env-flap"></div>
+      <div class="env-seal">♥</div>
+    </div>
+    <button type="button" class="envelope-open-btn" id="envelope-open-btn">Toca para abrir</button>
+  </div>
+</div>
 
 <nav class="navbar on-hero" id="navbar">
   <div class="nav-logo" data-cfg="coupleInitials">S&amp; M</div>
@@ -790,6 +878,29 @@ if(dsWrap){
     </div>
   `).join('');
 }
+
+/* ================= SOBRE DE BIENVENIDA (solo mobile) ================= */
+(function(){
+  const overlay = document.getElementById('envelope-overlay');
+  const envelope = document.getElementById('envelope');
+  const openBtn = document.getElementById('envelope-open-btn');
+  const isMobile = window.matchMedia('(max-width:760px)').matches;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!isMobile || reduceMotion){ return; }
+
+  overlay.hidden = false;
+  document.body.style.overflow = 'hidden';
+
+  openBtn.addEventListener('click', ()=>{
+    openBtn.disabled = true;
+    envelope.classList.add('is-open');
+    setTimeout(()=>{
+      overlay.classList.add('is-hidden');
+      document.body.style.overflow = '';
+      setTimeout(()=>{ overlay.hidden = true; }, 650);
+    }, 1100);
+  });
+})();
 
 /* ================= NAV ================= */
 const navbar = document.getElementById('navbar');
