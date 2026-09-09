@@ -583,7 +583,7 @@
   <div class="wrap">
     <div class="section-eyebrow reveal">El gran día</div>
     <h2 class="section-title reveal">Itinerario</h2>
-    <div class="section-sub reveal">Así se verá nuestro día.</div>
+    <!--div class="section-sub reveal">Así se verá nuestro día.</div-->
     <div class="stops reveal">
       <div class="stop-card">
         <div class="label">Ceremonia religiosa</div>
@@ -592,6 +592,7 @@
         <div class="addr" data-cfg="churchAddress">Alcalde y Garcia 4, Centro, 91000 Xalapa-Enríquez, Ver.</div>
         <a class="maplink" id="church-map" href="#" target="_blank" rel="noopener">Ver ubicación en el mapa</a>
       </div>
+      <div class="section-sub reveal">Después de la ceremonia:</div>
       <div class="stop-card">
         <div class="label">Recepción</div>
         <h3 data-cfg="venueName">Mayak Eventos</h3>
@@ -909,14 +910,21 @@ if(dsWrap){
     window.scrollTo(0, lockedScrollY);
   }
 
+  // Refuerzo extra: bloquea directamente cualquier gesto de arrastre sobre
+  // el overlay, sin importar qué tan bien (o mal) esa versión de iOS
+  // respete el position:fixed del body.
+  function blockTouchMove(e){ e.preventDefault(); }
+
   overlay.hidden = false;
   lockScroll();
+  overlay.addEventListener('touchmove', blockTouchMove, { passive:false });
 
   openBtn.addEventListener('click', ()=>{
     openBtn.disabled = true;
     envelope.classList.add('is-open');
     setTimeout(()=>{
       overlay.classList.add('is-hidden');
+      overlay.removeEventListener('touchmove', blockTouchMove);
       unlockScroll();
       setTimeout(()=>{ overlay.hidden = true; }, 650);
     }, 1100);
