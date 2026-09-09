@@ -667,6 +667,14 @@
       </div>
       <div class="ticket-actions"><button type="button" id="edit-rsvp">Editar mi respuesta</button></div>
     </div>
+
+    <div id="not-attending-wrap" style="display:none;">
+      <div class="form-card" style="text-align:center;">
+        <div class="eyebrow" style="color:var(--ladrillo); font-size:11px; letter-spacing:0.24em; text-transform:uppercase;">Respuesta registrada</div>
+        <p style="color:var(--text-dim); margin-top:10px;" id="not-attending-msg"></p>
+        <button type="button" id="edit-rsvp-declined" style="margin-top:14px; background:none; border:none; color:var(--ladrillo); text-decoration:underline;">Editar mi respuesta</button>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -991,16 +999,11 @@ form.addEventListener('submit', async (e)=>{
   if(attending){ showTicket(saved); }
   else{
     document.getElementById('rsvp-form-wrap').style.display = 'none';
-    document.getElementById('ticket-wrap').style.display = 'block';
-    document.getElementById('ticket-wrap').innerHTML =
-      '<div class="form-card" style="text-align:center;">' +
-      '<div class="eyebrow" style="color:var(--ladrillo); font-size:11px; letter-spacing:0.24em; text-transform:uppercase;">Respuesta registrada</div>' +
-      '<p style="color:var(--text-dim); margin-top:10px;">Lamentamos que no puedas acompañarnos, ' + escapeHtml(name) + '. ¡Gracias por avisar!</p>' +
-      '<button type="button" id="edit-rsvp-2" style="margin-top:14px; background:none; border:none; color:var(--ladrillo); text-decoration:underline;">Editar mi respuesta</button>' +
-      '</div>';
-    document.getElementById('edit-rsvp-2').addEventListener('click', resetForm);
+    document.getElementById('not-attending-msg').textContent = 'Lamentamos que no puedas acompañarnos, ' + name + '. ¡Gracias por avisar!';
+    document.getElementById('not-attending-wrap').style.display = 'block';
   }
 });
+document.getElementById('edit-rsvp-declined').addEventListener('click', resetForm);
 
 function showTicket(guest){
   document.getElementById('rsvp-form-wrap').style.display = 'none';
@@ -1022,6 +1025,7 @@ function showTicket(guest){
 }
 function resetForm(){
   document.getElementById('ticket-wrap').style.display = 'none';
+  document.getElementById('not-attending-wrap').style.display = 'none';
   document.getElementById('rsvp-form-wrap').style.display = 'block';
 }
 document.getElementById('edit-rsvp').addEventListener('click', resetForm);
