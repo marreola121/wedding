@@ -681,15 +681,19 @@
     <button class="admin-close" id="admin-close" aria-label="Cerrar">×</button>
     <div id="admin-login">
       <h2>Panel del organizador</h2>
-      <div class="admin-sub">Ingresa el código de acceso para ver las confirmaciones.</div>
-      <div class="pin-row">
-        <input type="text" id="admin-pin" placeholder="Código de acceso" autocomplete="off">
+      <div class="admin-sub">Inicia sesión con tu cuenta de organizador para ver las confirmaciones.</div>
+      <div class="pin-row" style="flex-direction:column;">
+        <input type="email" id="admin-email" placeholder="Correo" autocomplete="username" style="letter-spacing:normal; text-align:left;">
+        <input type="password" id="admin-password" placeholder="Contraseña" autocomplete="current-password" style="letter-spacing:normal; text-align:left;">
         <button type="button" id="admin-pin-submit">Entrar</button>
       </div>
       <div class="pin-error" id="admin-pin-error"></div>
     </div>
     <div id="admin-dashboard" hidden>
-      <h2>Confirmaciones</h2>
+      <div class="admin-actions" style="margin-top:0;">
+        <h2 style="margin:0;">Confirmaciones</h2>
+        <button type="button" class="refresh-btn" id="admin-logout">Cerrar sesión</button>
+      </div>
       <div class="admin-sub">Vista en vivo de quién confirmó y quién ha ingresado.</div>
       <div class="stat-row">
         <div class="stat"><div class="n" id="stat-yes">0</div><div class="l">Confirmaron</div></div>
@@ -722,7 +726,7 @@
           <tbody id="guest-table-body"></tbody>
         </table>
       </div>
-      <div class="privacy-note">Esta lista se guarda como dato compartido: cualquier persona con acceso a este panel y el código puede verla y editarla.</div>
+      <div class="privacy-note">Esta lista solo la puede ver y editar quien inicie sesión con una cuenta de organizador autorizada.</div>
     </div>
   </div>
 </div>
@@ -744,7 +748,6 @@ const CONFIG = {
   churchAddress: "Alcalde y Garcia 4, Centro, 91000 Xalapa-Enríquez, Ver.",
   hashtag: "#SaraYMarco2026",
   rsvpDeadline: "30 de Septiembre 2026",
-  adminCode: "adminCode2026!",
   // Fecha y hora exacta de la recepción, formato ISO, para la cuenta regresiva
   weddingISO: "2026-11-28T13:00:00",
   // ⚠️ PRODUCCIÓN: reemplaza con los datos de TU proyecto de Supabase
@@ -835,22 +838,64 @@ const sb = (CONFIG.supabaseUrl.includes('TU-PROYECTO'))
   ? null
   : supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnonKey);
 
+function mapGuestRow(r){
+  return {
+    id: r.id, name: r.name, attending: r.attending,
+    companions: r.companions, companionNames: r.companion_names || [],
+    message: r.message, code: r.code,
+    checkedIn: r.checked_in, checkedInAt: r.checked_in_at,
+    timestamp: new Date(r.created_at).getTime()
+  };
+}
+
+// Uso exclusivo del panel de organizador (requiere sesión de admin — ver RLS en Supabase).
 async function loadGuests(){
   if(!sb){ console.warn('Supabase no está configurado — revisa supabaseUrl/supabaseAnonKey en CONFIG.'); return []; }
   try{
     const { data, error } = await sb.from('rsvps').select('*').order('created_at');
     if(error) throw error;
-    return data.map(r => ({
-      id: r.id, name: r.name, attending: r.attending,
-      companions: r.companions, companionNames: r.companion_names || [],
-      message: r.message, code: r.code,
-      checkedIn: r.checked_in, checkedInAt: r.checked_in_at,
-      timestamp: new Date(r.created_at).getTime()
-    }));
+    return data.map(mapGuestRow);
   }catch(e){ console.error(e); return []; }
 }
 
-// Guarda o actualiza UN invitado (upsert) — no reescribe la lista completa.
+// Búsqueda pública de UN invitado por nombre — pasa por una función RPC en
+// Supabase (SECURITY DEFINER) en vez de leer la tabla completa, para que un
+// visitante no pueda listar a todos los invitados ni sus códigos QR.
+// exact:true (usado antes de guardar el RSVP) evita que un nombre parcial
+// empareje por error con la fila de otro invitado.
+async function findGuestByName(name, { exact = false } = {}){
+  if(!sb) return null;
+  try{
+    const fn = exact ? 'rsvp_find_exact' : 'rsvp_find';
+    const { data, error } = await sb.rpc(fn, { p_name: name });
+    if(error) throw error;
+    if(!data) return null;
+    return Array.isArray(data) ? (data[0] ? mapGuestRow(data[0]) : null) : mapGuestRow(data);
+  }catch(e){ console.error(e); return null; }
+}
+
+// Envío público del formulario de RSVP — pasa por la función rsvp_upsert en
+// Supabase (SECURITY DEFINER): busca por nombre y crea o actualiza esa fila
+// únicamente, sin darle al visitante permiso de lectura/escritura directa
+// sobre la tabla completa.
+async function submitRsvp(guest){
+  if(!sb) return null;
+  try{
+    const { data, error } = await sb.rpc('rsvp_upsert', {
+      p_id: guest.id,
+      p_name: guest.name,
+      p_attending: guest.attending,
+      p_companion_names: guest.companionNames || [],
+      p_message: guest.message,
+      p_code: guest.code
+    });
+    if(error) throw error;
+    return Array.isArray(data) ? mapGuestRow(data[0]) : mapGuestRow(data);
+  }catch(e){ console.error(e); return null; }
+}
+
+// Guarda o actualiza UN invitado (upsert) — SOLO para el panel de admin
+// (check-in); requiere sesión autenticada por las políticas RLS de la tabla.
 async function upsertGuest(guest){
   if(!sb){ console.warn('Supabase no está configurado — revisa supabaseUrl/supabaseAnonKey en CONFIG.'); return false; }
   try{
@@ -933,28 +978,23 @@ form.addEventListener('submit', async (e)=>{
   submitBtn.disabled = true; submitBtn.textContent = 'Guardando…';
   const cleanCompanionNames = companionRows.map(c => c.name.trim()).filter(n => n.length > 0);
 
-  const list = await loadGuests();
-  const key = name.toLowerCase();
-  let guest = list.find(g => g.name.toLowerCase() === key);
-  if(guest){
-    guest.attending = attending;
-    guest.companionNames = attending ? cleanCompanionNames : [];
-    guest.companions = guest.companionNames.length;
-    guest.message = message;
-    if(!guest.code) guest.code = genCode();
-  }else{
-    guest = { id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-      name, attending,
-      companionNames: attending ? cleanCompanionNames : [],
-      companions: attending ? cleanCompanionNames.length : 0,
-      message, code: genCode(),
-      checkedIn:false, checkedInAt:null, timestamp: Date.now() };
-  }
-  const ok = await upsertGuest(guest);
+  const existing = await findGuestByName(name, { exact: true });
+  const guest = {
+    id: existing ? existing.id : (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
+    name, attending,
+    companionNames: attending ? cleanCompanionNames : [],
+    companions: attending ? cleanCompanionNames.length : 0,
+    message,
+    code: (existing && existing.code) ? existing.code : genCode(),
+    checkedIn: existing ? existing.checkedIn : false,
+    checkedInAt: existing ? existing.checkedInAt : null,
+    timestamp: existing ? existing.timestamp : Date.now()
+  };
+  const saved = await submitRsvp(guest);
   submitBtn.disabled = false; submitBtn.textContent = 'Confirmar asistencia';
-  if(!ok){ formMsg.textContent='No se pudo guardar tu confirmación. Intenta de nuevo.'; formMsg.className='form-msg error'; return; }
+  if(!saved){ formMsg.textContent='No se pudo guardar tu confirmación. Intenta de nuevo.'; formMsg.className='form-msg error'; return; }
 
-  if(attending){ showTicket(guest); }
+  if(attending){ showTicket(saved); }
   else{
     document.getElementById('rsvp-form-wrap').style.display = 'none';
     document.getElementById('ticket-wrap').style.display = 'block';
@@ -996,11 +1036,10 @@ const lookupToggle = document.getElementById('lookup-toggle');
 const lookupBox = document.getElementById('lookup-box');
 lookupToggle.addEventListener('click', ()=> lookupBox.classList.toggle('show'));
 document.getElementById('lookup-btn').addEventListener('click', async ()=>{
-  const q = document.getElementById('lookup-input').value.trim().toLowerCase();
+  const q = document.getElementById('lookup-input').value.trim();
   const resultEl = document.getElementById('lookup-result');
   if(!q){ resultEl.textContent = 'Escribe tu nombre.'; return; }
-  const list = await loadGuests();
-  const found = list.find(g => g.name.toLowerCase() === q) || list.find(g => g.name.toLowerCase().includes(q));
+  const found = await findGuestByName(q);
   if(!found){ resultEl.textContent = 'No encontramos una confirmación con ese nombre.'; return; }
   resultEl.textContent = '';
   if(found.attending){ document.getElementById('rsvp-form-wrap').style.display='none'; showTicket(found); }
@@ -1009,12 +1048,19 @@ document.getElementById('lookup-btn').addEventListener('click', async ()=>{
 
 /* ================= PANEL DEL ORGANIZADOR ================= */
 const overlay = document.getElementById('admin-overlay');
-document.getElementById('admin-open').addEventListener('click', ()=>{
+document.getElementById('admin-open').addEventListener('click', async ()=>{
   overlay.hidden = false;
-  document.getElementById('admin-login').hidden = false;
-  document.getElementById('admin-dashboard').hidden = true;
-  document.getElementById('admin-pin').value = '';
   document.getElementById('admin-pin-error').textContent = '';
+  const { data: { session } } = sb ? await sb.auth.getSession() : { data:{ session:null } };
+  if(session){
+    document.getElementById('admin-login').hidden = true;
+    document.getElementById('admin-dashboard').hidden = false;
+    await renderDashboard();
+  }else{
+    document.getElementById('admin-login').hidden = false;
+    document.getElementById('admin-dashboard').hidden = true;
+    document.getElementById('admin-password').value = '';
+  }
 });
 document.getElementById('admin-close').addEventListener('click', ()=>{ overlay.hidden = true; stopScan(); });
 overlay.addEventListener('click', (e)=>{ if(e.target === overlay){ overlay.hidden = true; stopScan(); } });
@@ -1076,14 +1122,24 @@ function stopScan(){
 }
 document.getElementById('scan-stop').addEventListener('click', stopScan);
 document.getElementById('admin-pin-submit').addEventListener('click', async ()=>{
-  const val = document.getElementById('admin-pin').value.trim();
-  if(val === CONFIG.adminCode){
-    document.getElementById('admin-login').hidden = true;
-    document.getElementById('admin-dashboard').hidden = false;
-    await renderDashboard();
-  }else{ document.getElementById('admin-pin-error').textContent = 'Código incorrecto.'; }
+  const errEl = document.getElementById('admin-pin-error');
+  errEl.textContent = '';
+  if(!sb){ errEl.textContent = 'Supabase no está configurado.'; return; }
+  const email = document.getElementById('admin-email').value.trim();
+  const password = document.getElementById('admin-password').value;
+  if(!email || !password){ errEl.textContent = 'Ingresa tu correo y contraseña.'; return; }
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if(error){ errEl.textContent = 'Correo o contraseña incorrectos.'; return; }
+  document.getElementById('admin-login').hidden = true;
+  document.getElementById('admin-dashboard').hidden = false;
+  await renderDashboard();
 });
-document.getElementById('admin-pin').addEventListener('keydown', (e)=>{ if(e.key === 'Enter') document.getElementById('admin-pin-submit').click(); });
+document.getElementById('admin-password').addEventListener('keydown', (e)=>{ if(e.key === 'Enter') document.getElementById('admin-pin-submit').click(); });
+document.getElementById('admin-logout').addEventListener('click', async ()=>{
+  if(sb) await sb.auth.signOut();
+  document.getElementById('admin-login').hidden = false;
+  document.getElementById('admin-dashboard').hidden = true;
+});
 
 async function renderDashboard(){
   const list = await loadGuests();
