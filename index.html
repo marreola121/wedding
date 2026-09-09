@@ -626,14 +626,14 @@
 
 <section class="section" id="galeria" style="background:var(--card);">
   <div class="wrap">
-    <div class="section-eyebrow reveal">Momentos</div>
+    <!--div class="section-eyebrow reveal">Momentos</div-->
     <h2 class="section-title reveal">Galería</h2>
     <div class="section-sub reveal"></div>
     <div class="gallery reveal">
       <!-- Para cada foto real: borra el <span>Foto N</span> de ese bloque
            y en su lugar pon: <img src="tu-foto.jpg" alt="..."> -->
-      <img src="img/IMG_1947.jpeg" alt="Descripción de la imagen">
-      <img src="img/IMG_2119.jpeg" alt="Descripción de la imagen">
+      <!--img src="img/IMG_1947.jpeg" alt="Descripción de la imagen">
+      <img src="img/IMG_2119.jpeg" alt="Descripción de la imagen"-->
       <img src="img/IMG_7706.JPG" alt="Descripción de la imagen">
       <img src="img/IMG_7711.JPG" alt="Descripción de la imagen">
       <img src="img/IMG_7722.JPG" alt="Descripción de la imagen">
@@ -888,15 +888,36 @@ if(dsWrap){
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(!isMobile || reduceMotion){ return; }
 
+  // overflow:hidden en <body> no bloquea el scroll táctil en iOS Safari
+  // (Android sí lo respeta). Sin este bloqueo, el más mínimo arrastre del
+  // dedo al tocar el botón se interpreta como gesto de scroll/rebote y
+  // Safari cancela el click. Fijar el body con position:fixed sí funciona
+  // en ambos.
+  let lockedScrollY = 0;
+  function lockScroll(){
+    lockedScrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top = (-lockedScrollY) + 'px';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+  }
+  function unlockScroll(){
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    window.scrollTo(0, lockedScrollY);
+  }
+
   overlay.hidden = false;
-  document.body.style.overflow = 'hidden';
+  lockScroll();
 
   openBtn.addEventListener('click', ()=>{
     openBtn.disabled = true;
     envelope.classList.add('is-open');
     setTimeout(()=>{
       overlay.classList.add('is-hidden');
-      document.body.style.overflow = '';
+      unlockScroll();
       setTimeout(()=>{ overlay.hidden = true; }, 650);
     }, 1100);
   });
