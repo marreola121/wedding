@@ -882,7 +882,6 @@ async function submitRsvp(guest){
   if(!sb) return null;
   try{
     const { data, error } = await sb.rpc('rsvp_upsert', {
-      p_id: guest.id,
       p_name: guest.name,
       p_attending: guest.attending,
       p_companion_names: guest.companionNames || [],
@@ -980,15 +979,10 @@ form.addEventListener('submit', async (e)=>{
 
   const existing = await findGuestByName(name, { exact: true });
   const guest = {
-    id: existing ? existing.id : (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
     name, attending,
     companionNames: attending ? cleanCompanionNames : [],
-    companions: attending ? cleanCompanionNames.length : 0,
     message,
-    code: (existing && existing.code) ? existing.code : genCode(),
-    checkedIn: existing ? existing.checkedIn : false,
-    checkedInAt: existing ? existing.checkedInAt : null,
-    timestamp: existing ? existing.timestamp : Date.now()
+    code: (existing && existing.code) ? existing.code : genCode()
   };
   const saved = await submitRsvp(guest);
   submitBtn.disabled = false; submitBtn.textContent = 'Confirmar asistencia';
