@@ -887,8 +887,15 @@ if(dsWrap){
   const openBtn = document.getElementById('envelope-open-btn');
   const isMobile = window.matchMedia('(max-width:760px)').matches;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  console.log('[sobre] init', { isMobile, reduceMotion, overlay: !!overlay, envelope: !!envelope, openBtn: !!openBtn });
-  if(!isMobile || reduceMotion){ return; }
+  if(!isMobile || reduceMotion){
+    // El overlay es visible por CSS aunque el atributo "hidden" esté puesto
+    // (para que se muestre de inmediato en mobile sin esperar a este script).
+    // Si nos saltamos la animación (desktop, o accesibilidad "reducir
+    // movimiento"), hay que ocultarlo explícitamente aquí o se queda inerte
+    // tapando el sitio sin ningún listener que lo cierre.
+    overlay.style.display = 'none';
+    return;
+  }
 
   // overflow:hidden en <body> no bloquea el scroll táctil en iOS Safari
   // (Android sí lo respeta). Sin este bloqueo, el más mínimo arrastre del
@@ -919,7 +926,6 @@ if(dsWrap){
   overlay.hidden = false;
   lockScroll();
   overlay.addEventListener('touchmove', blockTouchMove, { passive:false });
-  overlay.addEventListener('touchstart', function(e){ console.log('[sobre] touchstart detectado, target:', e.target && e.target.className); });
 
   // El toque se escucha en TODO el overlay (no solo en el botón chico) para
   // que un toque impreciso en pantallas pequeñas igual abra el sobre.
@@ -928,7 +934,6 @@ if(dsWrap){
   // un gesto de scroll, así que 'touchend' sirve de respaldo directo.
   let opened = false;
   function openEnvelope(e){
-    console.log('[sobre] evento recibido:', e && e.type, 'ya abierto:', opened);
     if(opened) return;
     opened = true;
     if(e && e.type === 'touchend') e.preventDefault();
