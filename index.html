@@ -115,7 +115,8 @@
 
   /* ================= SOBRE DE BIENVENIDA (solo mobile) ================= */
   .envelope-overlay{
-    position:fixed; inset:0; z-index:200;
+    position:fixed; top:0; left:0; right:0; bottom:0; z-index:200;
+    width:100%; height:100vh; height:100dvh;
     display:flex; align-items:center; justify-content:center;
     background:radial-gradient(circle at 50% 30%, #4a5a3f 0%, var(--oliva) 55%, #2c3627 100%);
     transition:opacity .6s ease, visibility .6s ease;
@@ -548,7 +549,7 @@
   </div>
 </section>
 
-<!--section class="section" id="historia">
+<section class="section" id="historia">
   <div class="wrap-narrow">
     <div class="section-eyebrow reveal">Cómo empezó todo</div>
     <h2 class="section-title reveal">Nuestra Historia</h2>
@@ -577,7 +578,7 @@
       </div>
     </div>
   </div>
-</section-->
+</section>
 
 <section class="section" id="itinerario" style="background:var(--card);">
   <div class="wrap">
@@ -592,7 +593,6 @@
         <div class="addr" data-cfg="churchAddress">Alcalde y Garcia 4, Centro, 91000 Xalapa-Enríquez, Ver.</div>
         <a class="maplink" id="church-map" href="#" target="_blank" rel="noopener">Ver ubicación en el mapa</a>
       </div>
-      <div class="section-sub reveal">Después de la ceremonia:</div>
       <div class="stop-card">
         <div class="label">Recepción</div>
         <h3 data-cfg="venueName">Mayak Eventos</h3>
@@ -919,7 +919,12 @@ if(dsWrap){
   lockScroll();
   overlay.addEventListener('touchmove', blockTouchMove, { passive:false });
 
-  openBtn.addEventListener('click', ()=>{
+  // El clic se escucha en TODO el overlay (no solo en el botón chico) para
+  // que un toque impreciso en pantallas pequeñas igual abra el sobre.
+  let opened = false;
+  overlay.addEventListener('click', ()=>{
+    if(opened) return;
+    opened = true;
     openBtn.disabled = true;
     envelope.classList.add('is-open');
     setTimeout(()=>{
