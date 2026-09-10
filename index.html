@@ -1448,8 +1448,11 @@ function renderBingo(){
     });
   });
 }
-document.getElementById('bingo-new').addEventListener('click', generateBingoCard);
-generateBingoCard();
+const bingoNewBtn = document.getElementById('bingo-new');
+if(bingoNewBtn){
+  bingoNewBtn.addEventListener('click', generateBingoCard);
+  generateBingoCard();
+}
 </script>
 </body>
 </html>
