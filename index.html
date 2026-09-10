@@ -919,12 +919,16 @@ if(dsWrap){
   lockScroll();
   overlay.addEventListener('touchmove', blockTouchMove, { passive:false });
 
-  // El clic se escucha en TODO el overlay (no solo en el botón chico) para
+  // El toque se escucha en TODO el overlay (no solo en el botón chico) para
   // que un toque impreciso en pantallas pequeñas igual abra el sobre.
+  // Se escuchan 'touchend' Y 'click' a la vez: en iOS el evento 'click'
+  // sintético a veces no llega si Safari cree que el toque fue parte de
+  // un gesto de scroll, así que 'touchend' sirve de respaldo directo.
   let opened = false;
-  overlay.addEventListener('click', ()=>{
+  function openEnvelope(e){
     if(opened) return;
     opened = true;
+    if(e && e.type === 'touchend') e.preventDefault();
     openBtn.disabled = true;
     envelope.classList.add('is-open');
     setTimeout(()=>{
@@ -933,7 +937,9 @@ if(dsWrap){
       unlockScroll();
       setTimeout(()=>{ overlay.hidden = true; }, 650);
     }, 1100);
-  });
+  }
+  overlay.addEventListener('touchend', openEnvelope, { passive:false });
+  overlay.addEventListener('click', openEnvelope);
 })();
 
 /* ================= NAV ================= */
