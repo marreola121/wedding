@@ -260,6 +260,16 @@
     color:var(--text-dim);
   }
 
+  /* ---- Mensaje de bienvenida ---- */
+  .welcome-text{ max-width:560px; margin:0 auto; text-align:center; }
+  .welcome-text p{ margin:0 0 16px; line-height:1.75; color:var(--text); }
+  .welcome-text p:last-child{ margin-bottom:0; }
+  .welcome-signature{
+    margin-top:26px; text-align:center;
+    font-family:'Cormorant Garamond', serif; font-style:italic; font-weight:600;
+    font-size:1.4rem; color:var(--oliva);
+  }
+
   /* ---- Historia (timeline) ---- */
   .timeline{ display:flex; flex-direction:column; gap:26px; max-width:520px; margin:0 auto; }
   .tl-item{ display:flex; gap:18px; align-items:flex-start; }
@@ -566,6 +576,19 @@
     <div class="section-eyebrow reveal">Con la bendición de Dios</div>
     <p class="verse-text reveal">"Pues bien, lo que Dios ha unido, que el hombre no lo separe."</p>
     <div class="verse-cite reveal">Marcos 10:9</div>
+  </div>
+</section>
+
+<section class="section" id="bienvenida">
+  <div class="wrap-narrow">
+    <div class="section-eyebrow reveal">Para ustedes</div>
+    <h2 class="section-title reveal">Un mensaje de nuestra parte</h2>
+    <div class="welcome-text reveal">
+      <p>Queridos familiares y amigos:</p>
+      <p>Con el corazón lleno de alegría, queremos compartir con ustedes el inicio de una nueva etapa en nuestras vidas. Cada uno de ustedes ha sido parte importante de nuestra historia, y por eso nos encantaría contar con su presencia en el día en que nos convertiremos en una sola familia.</p>
+      <p>Gracias por su cariño, su apoyo, y por ser parte de este sueño hecho realidad.</p>
+    </div>
+    <div class="welcome-signature reveal" data-cfg="coupleNames">Sara &amp; Marco</div>
   </div>
 </section>
 
