@@ -419,8 +419,8 @@
   .ticket-companions{ font-size:0.8rem; color:var(--text-dim); text-align:center; max-width:280px; }
   .ticket-meta{ font-size:0.82rem; color:var(--text-dim); text-align:center; line-height:1.5; }
   .ticket-note{ font-size:0.78rem; color:var(--text-dim); text-align:center; margin-top:2px; opacity:0.85; }
-  .ticket-actions{ text-align:center; margin-top:16px; }
-  .ticket-actions button{ background:none; border:none; color:var(--ladrillo); font-size:0.85rem; text-decoration:underline; }
+  .ticket-actions{ display:flex; justify-content:center; gap:22px; flex-wrap:wrap; margin-top:16px; }
+  .ticket-actions button{ background:none; border:none; color:var(--ladrillo); font-size:0.85rem; text-decoration:underline; cursor:pointer; }
 
   .lookup{ margin-top:22px; text-align:center; }
   .lookup button.link-btn{ background:none; border:none; color:var(--text-dim); font-size:0.85rem; text-decoration:underline; }
@@ -769,7 +769,7 @@
         <button type="submit" class="cta" id="submit-btn">Confirmar asistencia</button>
         <div class="form-msg" id="form-msg"></div>
       </form>
-      <!--div class="lookup">
+      <div class="lookup">
         <button type="button" class="link-btn" id="lookup-toggle">¿Ya confirmaste? Busca tu entrada</button>
         <div class="lookup-box" id="lookup-box">
           <input type="text" id="lookup-input" placeholder="Tu nombre">
@@ -777,7 +777,7 @@
         </div>
         <div class="lookup-result" id="lookup-result"></div>
       </div>
-    </div-->
+    </div>
 
     <div id="ticket-wrap">
       <div class="ticket">
@@ -798,7 +798,10 @@
           <div class="ticket-note">Muestra este código QR (o el código escrito) en la entrada.</div>
         </div>
       </div>
-      <div class="ticket-actions"><button type="button" id="edit-rsvp">Editar mi respuesta</button></div>
+      <div class="ticket-actions">
+        <button type="button" id="download-qr">Descargar código QR</button>
+        <button type="button" id="edit-rsvp">Editar mi respuesta</button>
+      </div>
     </div>
 
     <div id="not-attending-wrap" style="display:none;">
@@ -1212,12 +1215,14 @@ form.addEventListener('submit', async (e)=>{
 });
 document.getElementById('edit-rsvp-declined').addEventListener('click', resetForm);
 
+let currentTicketCode = '';
 function showTicket(guest){
   document.getElementById('rsvp-form-wrap').style.display = 'none';
   const wrap = document.getElementById('ticket-wrap');
   wrap.style.display = 'block';
   document.getElementById('ticket-name').textContent = guest.name;
   document.getElementById('ticket-code').textContent = guest.code;
+  currentTicketCode = guest.code || '';
   const total = 1 + (guest.companions || 0);
   document.getElementById('ticket-party').textContent = total + (total===1 ? ' persona' : ' personas');
   const compNames = guest.companionNames || [];
@@ -1230,6 +1235,14 @@ function showTicket(guest){
     new QRCode(qrEl, { text: guest.code, width:176, height:176, colorDark:"#3F503D", colorLight:"#FFFFFF", correctLevel: QRCode.CorrectLevel.M });
   }else{ qrEl.textContent = guest.code; }
 }
+document.getElementById('download-qr').addEventListener('click', ()=>{
+  const canvas = document.querySelector('#qrcode canvas');
+  if(!canvas) return;
+  const link = document.createElement('a');
+  link.download = 'entrada-' + (currentTicketCode || 'boda') + '.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
 function resetForm(){
   document.getElementById('ticket-wrap').style.display = 'none';
   document.getElementById('not-attending-wrap').style.display = 'none';
