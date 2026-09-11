@@ -1083,8 +1083,12 @@ async function findGuestByName(name, { exact = false } = {}){
     const fn = exact ? 'rsvp_find_exact' : 'rsvp_find';
     const { data, error } = await sb.rpc(fn, { p_name: name });
     if(error) throw error;
-    if(!data) return null;
-    return Array.isArray(data) ? (data[0] ? mapGuestRow(data[0]) : null) : mapGuestRow(data);
+    // Cuando la función SQL no encuentra ninguna fila, PostgREST puede
+    // devolver un objeto con todos los campos en null (no un null "plano"),
+    // así que hay que checar el id, no solo si "data" existe.
+    const row = Array.isArray(data) ? data[0] : data;
+    if(!row || row.id == null) return null;
+    return mapGuestRow(row);
   }catch(e){ console.error(e); return null; }
 }
 
