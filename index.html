@@ -387,6 +387,7 @@
     width:100%; color:var(--terracota); font-size:0.88rem;
   }
   .add-companion-btn:disabled{ color:var(--text-dim); opacity:0.7; cursor:default; }
+  .companion-hint{ font-size:0.78rem; color:var(--text-dim); margin:-6px 0 10px; }
   .cta{
     width:100%; padding:15px; border:none; border-radius:10px;
     background:linear-gradient(135deg, var(--terracota), var(--ladrillo)); color:#fff;
@@ -757,6 +758,7 @@
         </div>
         <div class="field companions-wrap" id="companions-wrap">
           <label>Acompañantes adicionales</label>
+          <!--div class="companion-hint">Hasta 4 personas adicionales.</div-->
           <div id="companions-list"></div>
           <button type="button" id="add-companion" class="add-companion-btn">+ Agregar acompañante</button>
         </div>
@@ -1158,9 +1160,7 @@ function renderCompanions(){
       renderCompanions();
     });
   });
-  const reachedMax = companionRows.length >= MAX_COMPANIONS;
-  addCompanionBtn.disabled = reachedMax;
-  addCompanionBtn.textContent = reachedMax ? `Máximo ${MAX_COMPANIONS} acompañantes` : '+ Agregar acompañante';
+  addCompanionBtn.disabled = companionRows.length >= MAX_COMPANIONS;
 }
 addCompanionBtn.addEventListener('click', ()=>{
   if(companionRows.length >= MAX_COMPANIONS) return;
