@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¿Dama de Honor? — Sara &amp; Marco</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivory:#F7F1DF;
+    --card:#FFFEFA;
+    --terracota:#D9783F;
+    --cobre:#B75D4F;
+    --ladrillo:#9A533D;
+    --caramelo:#996037;
+    --salvia:#637457;
+    --oliva:#3F503D;
+    --choco:#4A3830;
+    --text:#4A3830;
+    --text-dim:#8B7863;
+    --line: rgba(154,83,61,0.22);
+    --radius:18px;
+  }
+  *{ box-sizing:border-box; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    margin:0; min-height:100vh; min-height:100dvh;
+    background:
+      radial-gradient(circle at 18% 12%, rgba(217,120,63,0.16), transparent 45%),
+      radial-gradient(circle at 84% 88%, rgba(99,116,87,0.16), transparent 45%),
+      var(--ivory);
+    color:var(--text);
+    font-family:'Work Sans', sans-serif;
+    font-weight:300;
+    -webkit-font-smoothing:antialiased;
+    display:flex; align-items:center; justify-content:center;
+    padding:28px 18px;
+    overflow-x:hidden;
+  }
+  h1,h2{ font-family:'Cormorant Garamond', serif; font-weight:600; margin:0; color:var(--oliva); }
+
+  .card{
+    position:relative;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:24px;
+    max-width:420px; width:100%;
+    padding:44px 30px 38px;
+    text-align:center;
+    box-shadow:0 30px 60px rgba(74,56,48,0.16);
+    opacity:0; transform:translateY(26px) scale(0.98);
+    animation:cardIn .9s cubic-bezier(.2,.8,.2,1) .15s forwards;
+  }
+  @keyframes cardIn{ to{ opacity:1; transform:translateY(0) scale(1); } }
+
+  .ornament{
+    font-size:1.6rem; color:var(--terracota); margin-bottom:18px;
+    opacity:0; animation:fadeUp .8s ease .4s forwards;
+  }
+  .eyebrow{
+    font-size:11px; letter-spacing:0.28em; text-transform:uppercase;
+    color:var(--terracota); font-weight:500; margin-bottom:14px;
+    opacity:0; animation:fadeUp .8s ease .55s forwards;
+  }
+  h1{
+    font-style:italic; font-size:clamp(1.7rem, 7vw, 2.3rem); line-height:1.2;
+    margin-bottom:20px;
+    opacity:0; animation:fadeUp .8s ease .7s forwards;
+  }
+  .msg{
+    font-size:0.98rem; line-height:1.75; color:var(--text-dim);
+    margin-bottom:22px;
+    opacity:0; animation:fadeUp .8s ease .85s forwards;
+  }
+  .signature{
+    font-family:'Cormorant Garamond', serif; font-style:italic; font-weight:600;
+    font-size:1.3rem; color:var(--oliva); margin-bottom:30px;
+    opacity:0; animation:fadeUp .8s ease 1s forwards;
+  }
+  @keyframes fadeUp{ from{ opacity:0; transform:translateY(14px);} to{ opacity:1; transform:translateY(0);} }
+
+  .accept-btn{
+    font-family:inherit; cursor:pointer;
+    width:100%; border:none; border-radius:12px; padding:16px;
+    background:linear-gradient(135deg, var(--terracota), var(--ladrillo));
+    color:#fff; font-size:1rem; font-weight:600; letter-spacing:0.02em;
+    box-shadow:0 14px 28px rgba(217,120,63,0.35);
+    transition:transform .15s ease, box-shadow .15s ease;
+    opacity:0; animation:fadeUp .8s ease 1.15s forwards;
+  }
+  .accept-btn:active{ transform:scale(0.96); box-shadow:0 8px 16px rgba(217,120,63,0.3); }
+
+  .back-link{
+    display:inline-block; margin-top:22px; font-size:0.8rem; color:var(--text-dim);
+    text-decoration:none; border-bottom:1px solid var(--line);
+    opacity:0; animation:fadeUp .8s ease 1.3s forwards;
+  }
+
+  /* ---------- Estado: aceptado ---------- */
+  .card[data-state="accepted"] .ask-view{ display:none; }
+  .card:not([data-state="accepted"]) .thanks-view{ display:none; }
+
+  .thanks-view{
+    opacity:0; transform:translateY(10px) scale(0.97);
+    animation:cardIn .6s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  .thanks-view .ornament{ animation:none; opacity:1; }
+  .thanks-view h1, .thanks-view .msg, .thanks-view .signature{ animation:none; opacity:1; }
+
+  @media (prefers-reduced-motion: reduce){
+    .card, .ornament, .eyebrow, h1, .msg, .signature, .accept-btn, .back-link, .thanks-view{
+      animation:none !important; opacity:1 !important; transform:none !important;
+    }
+  }
+
+  /* ---------- Confeti ---------- */
+  #confetti-layer{
+    position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:20;
+  }
+  .confetti-piece{
+    position:absolute; top:-24px;
+    border-radius:2px;
+    animation-name:confettiFall;
+    animation-timing-function:cubic-bezier(.3,0,.7,1);
+    animation-fill-mode:forwards;
+  }
+  @keyframes confettiFall{
+    0%{ transform:translateY(0) rotate(0deg); opacity:1; }
+    100%{ transform:translateY(115vh) rotate(540deg); opacity:0.9; }
+  }
+</style>
+</head>
+<body>
+
+<div id="confetti-layer"></div>
+
+<div class="card" id="card">
+  <div class="ask-view">
+    <div class="ornament">❀ ❀ ❀</div>
+    <div class="eyebrow">Con todo mi cariño</div>
+    <h1 data-cfg="askTitle">¿Serías mi dama de honor?</h1>
+    <p class="msg" data-cfg="askMessage">Eres una de las personas más importantes en mi vida, y no me imagino este día tan especial sin ti a mi lado. Me encantaría que me acompañaras, no solo como invitada, sino como parte del equipo que hará este sueño realidad.</p>
+    <div class="signature" data-cfg="signature">Con amor, Sara</div>
+    <button type="button" class="accept-btn" id="accept-btn">¡Sí, acepto! 💐</button>
+    <a class="back-link" href="index.html">Ver la invitación de la boda →</a>
+  </div>
+
+  <div class="thanks-view">
+    <div class="ornament">🎉 🎉 🎉</div>
+    <div class="eyebrow">¡Hiciste mi día!</div>
+    <h1 data-cfg="thanksTitle">¡Gracias por decir que sí!</h1>
+    <p class="msg" data-cfg="thanksMessage">No sabes lo feliz que me haces. Pronto te comparto todos los detalles de lo que viene — por ahora solo quería que lo supieras primero que nadie.</p>
+    <div class="signature" data-cfg="signature">Con amor, Sara</div>
+    <a class="back-link" href="index.html">Ver la invitación de la boda →</a>
+  </div>
+</div>
+
+<script>
+// Edita aquí los textos y nombres sin tocar el resto del archivo.
+const CONFIG = {
+  signature: 'Con amor, Sara',
+  askTitle: '¿Serías mi dama de honor?',
+  askMessage: 'Eres una de las personas más importantes en mi vida, y no me imagino este día tan especial sin ti a mi lado. Me encantaría que me acompañaras, no solo como invitada, sino como parte del equipo que hará este sueño realidad.',
+  thanksTitle: '¡Gracias por decir que sí!',
+  thanksMessage: 'No sabes lo feliz que me haces. Pronto te comparto todos los detalles de lo que viene — por ahora solo quería que lo supieras primero que nadie.'
+};
+document.querySelectorAll('[data-cfg]').forEach(el=>{
+  const key = el.getAttribute('data-cfg');
+  if(CONFIG[key]) el.textContent = CONFIG[key];
+});
+
+const CONFETTI_COLORS = ['#D9783F', '#B75D4F', '#9A533D', '#996037', '#637457', '#3F503D'];
+
+function launchConfetti(){
+  const layer = document.getElementById('confetti-layer');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduceMotion) return;
+  const count = 60;
+  for(let i = 0; i < count; i++){
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    const size = 6 + Math.random() * 6;
+    piece.style.width = size + 'px';
+    piece.style.height = (size * 0.4) + 'px';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.background = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+    piece.style.animationDuration = (2.6 + Math.random() * 1.6) + 's';
+    piece.style.animationDelay = (Math.random() * 0.4) + 's';
+    layer.appendChild(piece);
+    setTimeout(()=> piece.remove(), 4600);
+  }
+}
+
+document.getElementById('accept-btn').addEventListener('click', ()=>{
+  document.getElementById('card').dataset.state = 'accepted';
+  launchConfetti();
+  setTimeout(launchConfetti, 500);
+});
+</script>
+</body>
+</html>
