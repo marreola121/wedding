@@ -248,6 +248,18 @@
   .reveal{ opacity:0; transform:translateY(18px); transition:opacity .7s ease, transform .7s ease; }
   .reveal.is-visible{ opacity:1; transform:translateY(0); }
 
+  /* ---- Dedicatoria (versículo) ---- */
+  .verse-section{ text-align:center; padding:50px 0; }
+  .verse-text{
+    font-family:'Cormorant Garamond', serif; font-style:italic; font-weight:600;
+    font-size:1.5rem; line-height:1.55; color:var(--oliva);
+    max-width:560px; margin:0 auto;
+  }
+  .verse-cite{
+    margin-top:16px; font-size:0.78rem; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--text-dim);
+  }
+
   /* ---- Historia (timeline) ---- */
   .timeline{ display:flex; flex-direction:column; gap:26px; max-width:520px; margin:0 auto; }
   .tl-item{ display:flex; gap:18px; align-items:flex-start; }
@@ -546,6 +558,14 @@
     <div class="cd-box"><div class="n" id="cd-hours">00</div><div class="l">Horas</div></div>
     <div class="cd-box"><div class="n" id="cd-mins">00</div><div class="l">Min</div></div>
     <div class="cd-box"><div class="n" id="cd-secs">00</div><div class="l">Seg</div></div>
+  </div>
+</section>
+
+<section class="section verse-section" id="dedicatoria">
+  <div class="wrap-narrow">
+    <div class="section-eyebrow reveal">Con la bendición de Dios</div>
+    <p class="verse-text reveal">"Mejor son dos que uno, porque tienen mejor paga de su trabajo… y cordón de tres dobleces no se rompe pronto."</p>
+    <div class="verse-cite reveal">Eclesiastés 4:9, 12</div>
   </div>
 </section>
 
