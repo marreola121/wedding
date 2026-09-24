@@ -114,6 +114,57 @@
     }
   }
 
+  /* ---------- Pantalla de inicio (flor) ---------- */
+  .intro-overlay{
+    position:fixed; top:0; left:0; right:0; bottom:0; z-index:100;
+    width:100%; height:100vh; height:100dvh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:30px;
+    background:
+      radial-gradient(circle at 50% 30%, rgba(217,120,63,0.14), transparent 55%),
+      var(--ivory);
+    transition:opacity .6s ease, visibility .6s ease;
+  }
+  .intro-overlay.is-hidden{ opacity:0; visibility:hidden; pointer-events:none; }
+  .intro-overlay[hidden]{ display:none; }
+
+  .flower{
+    position:relative; width:130px; height:130px;
+    animation:flowerSpin 16s linear infinite, flowerPulse 3.2s ease-in-out infinite;
+    transition:transform .6s cubic-bezier(.2,.8,.2,1), opacity .6s ease;
+  }
+  .petal{
+    position:absolute; top:50%; left:50%; width:34px; height:56px;
+    margin:-56px 0 0 -17px;
+    background:linear-gradient(160deg, var(--terracota), var(--ladrillo));
+    border-radius:50% 50% 4px 4px;
+    transform-origin:50% 100%;
+    box-shadow:inset 0 -6px 10px rgba(74,56,48,0.12);
+  }
+  .flower-center{
+    position:absolute; top:50%; left:50%; width:30px; height:30px;
+    margin:-15px 0 0 -15px; border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, var(--caramelo), var(--choco));
+    box-shadow:0 4px 10px rgba(74,56,48,0.25);
+    z-index:2;
+  }
+  @keyframes flowerSpin{ to{ transform:rotate(360deg); } }
+  @keyframes flowerPulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.06); } }
+
+  .intro-hint{
+    font-size:0.8rem; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--text-dim);
+    animation:hintPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes hintPulse{ 0%,100%{ opacity:0.55; } 50%{ opacity:1; } }
+
+  /* Al tocar: la flor se abre (los pétalos se separan y se desvanecen) */
+  .flower.is-open{ animation:none; transform:scale(1.5); opacity:0; }
+
+  @media (prefers-reduced-motion: reduce){
+    .flower, .flower-center, .petal, .intro-hint{ animation:none !important; }
+  }
+
   /* ---------- Confeti ---------- */
   #confetti-layer{
     position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:20;
@@ -132,6 +183,11 @@
 </style>
 </head>
 <body>
+
+<div class="intro-overlay" id="intro-overlay">
+  <div class="flower" id="intro-flower"></div>
+  <div class="intro-hint">Toca para continuar</div>
+</div>
 
 <div id="confetti-layer"></div>
 
@@ -169,6 +225,50 @@ document.querySelectorAll('[data-cfg]').forEach(el=>{
   const key = el.getAttribute('data-cfg');
   if(CONFIG[key]) el.textContent = CONFIG[key];
 });
+
+/* ================= PANTALLA DE INICIO (flor) ================= */
+(function(){
+  const overlay = document.getElementById('intro-overlay');
+  const flower = document.getElementById('intro-flower');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 6 pétalos repartidos cada 60° alrededor del centro.
+  const PETAL_COUNT = 6;
+  for(let i = 0; i < PETAL_COUNT; i++){
+    const petal = document.createElement('div');
+    petal.className = 'petal';
+    petal.style.transform = `rotate(${(360 / PETAL_COUNT) * i}deg)`;
+    flower.appendChild(petal);
+  }
+  const center = document.createElement('div');
+  center.className = 'flower-center';
+  flower.appendChild(center);
+
+  if(reduceMotion){
+    // Igual que en el sobre de la boda: si el sistema pide reducir
+    // movimiento, hay que ocultar el overlay explícitamente (el CSS lo
+    // muestra por defecto) y no solo dejar de animar, o se queda una
+    // pantalla inerte tapando la invitación.
+    overlay.style.display = 'none';
+    return;
+  }
+
+  let opened = false;
+  function openIntro(e){
+    if(opened) return;
+    opened = true;
+    if(e && e.type === 'touchend') e.preventDefault();
+    flower.classList.add('is-open');
+    setTimeout(()=>{
+      overlay.classList.add('is-hidden');
+      setTimeout(()=>{ overlay.hidden = true; }, 650);
+    }, 550);
+  }
+  // Se escuchan 'touchend' y 'click' a la vez por la misma razón que en el
+  // sobre: en iOS el 'click' sintético a veces no llega.
+  overlay.addEventListener('touchend', openIntro, { passive:false });
+  overlay.addEventListener('click', openIntro);
+})();
 
 const CONFETTI_COLORS = ['#D9783F', '#B75D4F', '#9A533D', '#996037', '#637457', '#3F503D'];
 
